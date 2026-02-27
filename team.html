@@ -1,0 +1,269 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Hamad Team Structure</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #3b82f6;
+            --purple: #a855f7;
+            --success: #22c55e;
+            --border: #334155;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        .header h1 { margin: 0; display: flex; align-items: center; gap: 10px; color: var(--accent); }
+        .back-btn { background: #334155; border: none; padding: 8px 16px; border-radius: 6px; color: white; cursor: pointer; text-decoration: none; }
+        .back-btn:hover { background: #475569; }
+
+        .team-container {
+            max-width: 1400px;
+            margin: 0 auto;
+            display: flex;
+            flex-direction: column;
+            gap: 40px;
+        }
+
+        /* Leader Section */
+        .leader-section {
+            display: flex;
+            justify-content: center;
+            position: relative;
+        }
+        .leader-section::after {
+            content: '';
+            position: absolute;
+            bottom: -40px;
+            left: 50%;
+            width: 2px;
+            height: 40px;
+            background: #334155;
+            z-index: 0;
+        }
+
+        /* Sub-Agents Grid */
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 30px;
+            position: relative;
+        }
+        .agents-grid::before {
+            content: '';
+            position: absolute;
+            top: -40px; /* Connect to leader line */
+            left: 10%; /* Adjust based on grid width, simplified for CSS only */
+            right: 10%;
+            height: 2px;
+            background: #334155;
+            z-index: 0;
+            display: none; /* Drawing complex trees in CSS is hard, skipping horizontal line for now */
+        }
+
+        /* Card Styles */
+        .agent-card {
+            background: var(--card-bg);
+            border: 1px solid var(--border);
+            border-radius: 16px;
+            padding: 25px;
+            position: relative;
+            z-index: 1;
+            transition: transform 0.3s, border-color 0.3s;
+            overflow: hidden;
+        }
+        .agent-card:hover {
+            transform: translateY(-5px);
+            border-color: var(--accent);
+            box-shadow: 0 10px 30px -10px rgba(0,0,0,0.5);
+        }
+        
+        .card-header {
+            display: flex;
+            align-items: center;
+            gap: 15px;
+            margin-bottom: 15px;
+        }
+        
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 12px;
+            background: #334155;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            color: white;
+            position: relative;
+        }
+        .avatar.Hamad { background: linear-gradient(135deg, #3b82f6, #8b5cf6); }
+        .avatar.Devin { background: #0ea5e9; }
+        .avatar.Scribe { background: #f59e0b; }
+        .avatar.Pixel { background: #ec4899; }
+        .avatar.Scout { background: #10b981; }
+
+        .status-badge {
+            position: absolute;
+            bottom: -5px;
+            right: -5px;
+            width: 15px;
+            height: 15px;
+            border-radius: 50%;
+            border: 3px solid var(--card-bg);
+        }
+        .status-online { background: var(--success); }
+        .status-idle { background: var(--text-muted); }
+        .status-busy { background: var(--purple); }
+
+        .agent-details h2 { margin: 0; font-size: 1.2rem; }
+        .agent-role { color: var(--accent); font-size: 0.9rem; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+        .agent-desc {
+            color: var(--text-muted);
+            font-size: 0.9rem;
+            line-height: 1.5;
+            margin-bottom: 15px;
+            min-height: 40px;
+        }
+
+        .skills-container {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 8px;
+            margin-top: auto;
+        }
+        .skill-tag {
+            background: rgba(255,255,255,0.05);
+            padding: 4px 10px;
+            border-radius: 20px;
+            font-size: 0.75rem;
+            color: #cbd5e1;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+
+        /* Leader Specifics */
+        .leader-card {
+            width: 400px;
+            background: linear-gradient(to bottom, #1e293b, #0f172a);
+            border: 1px solid #3b82f6;
+            box-shadow: 0 0 30px rgba(59, 130, 246, 0.1);
+        }
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div style="display:flex; align-items:center; gap:20px">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-right"></i> Dashboard</a>
+        <h1><i class="fas fa-sitemap"></i> Team Structure</h1>
+    </div>
+</div>
+
+<div class="team-container">
+    
+    <!-- Leader -->
+    <div class="leader-section" id="leader-container">
+        <!-- Hamad goes here -->
+        <div style="color:white">Loading Leadership...</div>
+    </div>
+
+    <!-- Sub-Agents -->
+    <div class="agents-grid" id="agents-container">
+        <!-- Team goes here -->
+    </div>
+
+</div>
+
+<script>
+    const { Client, Databases, Query } = Appwrite;
+    const client = new Client();
+    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
+    const databases = new Databases(client);
+    
+    const DB_ID = 'hamad_ops';
+    const COLL_AGENTS = 'agents';
+
+    async function loadTeam() {
+        try {
+            const res = await databases.listDocuments(DB_ID, COLL_AGENTS, [Query.limit(20)]);
+            renderTeam(res.documents);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function renderTeam(agents) {
+        const leader = agents.find(a => a.name === 'Hamad');
+        const team = agents.filter(a => a.name !== 'Hamad' && !['H2', 'H3'].includes(a.name)); // Filter out old placeholders H2/H3 if new ones exist, or keep them if needed. Let's keep distinct roles.
+        // Actually, let's include everyone but prioritize the new roles.
+        
+        // Render Leader
+        if (leader) {
+            document.getElementById('leader-container').innerHTML = createCard(leader, true);
+        }
+
+        // Render Team
+        // Sort order: Devin (Dev), Pixel (Design), Scribe (Content), Scout (Research), Others
+        const order = ['Devin', 'Pixel', 'Scribe', 'Scout'];
+        const sortedTeam = team.sort((a, b) => {
+            return order.indexOf(a.name) - order.indexOf(b.name);
+        });
+
+        document.getElementById('agents-container').innerHTML = sortedTeam.map(a => createCard(a)).join('');
+    }
+
+    function createCard(agent, isLeader = false) {
+        const skills = agent.skills ? agent.skills.split(',').map(s => `<span class="skill-tag">${s.trim()}</span>`).join('') : '';
+        const statusColor = agent.status === 'online' ? 'status-online' : (agent.status === 'busy' ? 'status-busy' : 'status-idle');
+        const iconClass = agent.icon ? `fa-${agent.icon}` : 'fa-robot';
+
+        return `
+            <div class="agent-card ${isLeader ? 'leader-card' : ''}">
+                <div class="card-header">
+                    <div class="avatar ${agent.name}">
+                        <i class="fas ${iconClass}"></i>
+                        <div class="status-badge ${statusColor}"></div>
+                    </div>
+                    <div class="agent-details">
+                        <h2>${agent.name}</h2>
+                        <div class="agent-role">${agent.role}</div>
+                    </div>
+                </div>
+                <div class="agent-desc">
+                    ${agent.description || 'No description provided.'}
+                </div>
+                <div class="skills-container">
+                    ${skills}
+                </div>
+            </div>
+        `;
+    }
+
+    loadTeam();
+
+</script>
+
+</body>
+</html>
