@@ -1,313 +1,371 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Hamad Content Pipeline</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Content Pipeline</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#2563EB", // Royal Blue
+                        secondary: "#64748B", // Slate
+                        success: "#10B981", // Emerald
+                        warning: "#F59E0B", // Amber
+                        danger: "#EF4444", // Red
+                        "background-light": "#F3F4F6", // Gray 100
+                        "background-dark": "#0F172A", // Slate 900
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1E293B", // Slate 800
+                        "border-light": "#E2E8F0", // Slate 200
+                        "border-dark": "#334155", // Slate 700
+                        "text-main-light": "#1E293B", // Slate 800
+                        "text-main-dark": "#F8FAFC", // Slate 50
+                        "text-muted-light": "#64748B", // Slate 500
+                        "text-muted-dark": "#94A3B8", // Slate 400
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        'xl': "0.75rem",
+                        '2xl': "1rem",
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                        'glow': '0 0 15px rgba(37, 99, 235, 0.3)',
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <!-- Appwrite -->
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+
     <style>
-        :root {
-            --bg: #0f172a;
-            --card-bg: #1e293b;
-            --column-bg: #162032;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --accent: #f43f5e; /* Rose for content */
-            --youtube: #ff0000;
-            --tiktok: #00f2ea;
-            --instagram: #e1306c;
-            --blog: #3b82f6;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            padding: 20px;
-            overflow-x: auto;
-        }
-
-        /* Layout */
-        .header {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            margin-bottom: 30px;
-            padding-bottom: 20px;
-            border-bottom: 1px solid #334155;
-        }
-        .header h1 { margin: 0; display: flex; align-items: center; gap: 10px; color: var(--accent); }
-        .nav-link { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
-        .nav-link:hover { color: var(--text); }
-        .back-btn { background: #334155; border: none; padding: 8px 16px; border-radius: 6px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px; text-decoration: none; }
-        .back-btn:hover { background: #475569; }
-
-        /* Kanban Board */
-        .pipeline {
-            display: flex;
-            gap: 20px;
-            overflow-x: auto;
-            padding-bottom: 20px;
-            min-height: 80vh;
-        }
-        .stage-column {
-            min-width: 300px;
-            max-width: 300px;
-            background: var(--column-bg);
-            border-radius: 12px;
-            display: flex;
-            flex-direction: column;
-            border-top: 4px solid #334155;
-        }
+        .pipeline-scroll::-webkit-scrollbar { height: 8px; width: 8px; } 
+        .pipeline-scroll::-webkit-scrollbar-track { background: transparent; } 
+        .pipeline-scroll::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; } 
+        .dark .pipeline-scroll::-webkit-scrollbar-thumb { background: #475569; }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
         
-        .stage-header {
-            padding: 15px;
-            font-weight: bold;
-            display: flex;
-            justify-content: space-between;
-            border-bottom: 1px solid #334155;
-            text-transform: uppercase;
-            font-size: 0.85rem;
-            letter-spacing: 0.5px;
-        }
-
-        .cards-container {
-            padding: 15px;
-            flex-grow: 1;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-        }
-
-        /* Content Card */
-        .content-card {
-            background: var(--card-bg);
-            border-radius: 8px;
-            padding: 15px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
-            border: 1px solid #334155;
-            cursor: pointer;
-            transition: transform 0.2s, border-color 0.2s;
-        }
-        .content-card:hover { transform: translateY(-3px); border-color: var(--accent); }
-
-        .card-badges { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
-        .badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; color: white; }
-        .badge-yt { background: var(--youtube); }
-        .badge-tt { background: var(--tiktok); color: black; }
-        .badge-ig { background: var(--instagram); }
-        .badge-blog { background: var(--blog); }
-        
-        .card-title { font-weight: 600; margin-bottom: 8px; line-height: 1.4; font-size: 0.95rem; }
-        .card-preview { font-size: 0.8rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; }
-        
-        .card-footer {
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            font-size: 0.8rem;
-            color: var(--text-muted);
-            border-top: 1px solid #334155;
-            padding-top: 8px;
-        }
-
-        /* Modal */
-        .modal-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: rgba(0,0,0,0.7);
-            display: none; justify-content: center; align-items: center;
-            z-index: 1000;
-        }
-        .modal {
-            background: var(--card-bg);
-            width: 90%; max-width: 800px;
-            border-radius: 12px;
-            padding: 0;
-            max-height: 90vh;
-            display: flex;
-            flex-direction: column;
-            border: 1px solid #334155;
-            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
-        }
-        .modal-header { padding: 20px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
-        .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
-        .modal-footer { padding: 20px; border-top: 1px solid #334155; display: flex; justify-content: flex-end; gap: 10px; }
-        
-        .form-group { display: flex; flex-direction: column; gap: 8px; }
-        label { font-size: 0.9rem; color: var(--text-muted); }
-        input, select, textarea {
-            background: #0f172a; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px; font-family: inherit;
-        }
-        textarea { min-height: 200px; line-height: 1.6; resize: vertical; }
-        
-        .btn { padding: 8px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
-        .btn-primary { background: var(--accent); color: white; }
-        .btn-secondary { background: #334155; color: white; }
-        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
-
-        /* Stage Colors */
-        .stage-idea { border-color: #94a3b8; }
-        .stage-drafting { border-color: #fbbf24; }
-        .stage-review { border-color: #a855f7; }
-        .stage-production { border-color: #f43f5e; }
-        .stage-publishing { border-color: #3b82f6; }
-        .stage-published { border-color: #22c55e; }
-
+        body { font-family: 'Inter', sans-serif; }
     </style>
 </head>
-<body>
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-body antialiased h-screen overflow-hidden flex transition-colors duration-200">
 
-<div class="header">
-    <div style="display:flex; align-items:center; gap:20px">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-right"></i> Operations Board</a>
-        <h1><i class="fas fa-video"></i> Hamad Content Pipeline</h1>
-    </div>
-    <div style="display:flex; gap:15px; align-items:center">
-        <span class="nav-link"><i class="fas fa-clock"></i> <span id="clock">--:--</span></span>
-        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> New Idea</button>
-    </div>
-</div>
-
-<div class="pipeline" id="pipeline-container">
-    <!-- Columns will be injected here -->
-</div>
-
-<!-- Edit Modal -->
-<div class="modal-overlay" id="editModal">
-    <div class="modal">
-        <div class="modal-header">
-            <h2 id="modalTitle">Edit Content</h2>
-            <button class="close-btn" onclick="closeModal()">&times;</button>
-        </div>
-        <div class="modal-body">
-            <input type="hidden" id="editId">
-            
-            <div class="form-group">
-                <label>Title</label>
-                <input type="text" id="editTitle" placeholder="Video Title">
-            </div>
-            
-            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px">
-                <div class="form-group">
-                    <label>Stage</label>
-                    <select id="editStage">
-                        <option value="idea">💡 Idea</option>
-                        <option value="drafting">📝 Drafting</option>
-                        <option value="review">👀 Review</option>
-                        <option value="production">🎥 Production</option>
-                        <option value="publishing">🚀 Publishing</option>
-                        <option value="published">✅ Published</option>
-                    </select>
-                </div>
-                <div class="form-group">
-                    <label>Platform</label>
-                    <select id="editPlatform">
-                        <option value="YouTube">YouTube</option>
-                        <option value="TikTok">TikTok</option>
-                        <option value="Instagram">Instagram</option>
-                        <option value="Blog">Blog</option>
-                        <option value="Other">Other</option>
-                    </select>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex flex-col h-full flex-shrink-0 transition-colors duration-200 z-20">
+        <div class="p-6 border-b border-border-light dark:border-border-dark">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold shadow-sm">M</div>
+                <div class="flex flex-col">
+                    <span class="text-sm font-semibold text-text-main-light dark:text-text-main-dark">Mohammed</span>
+                    <span class="text-xs text-text-muted-light dark:text-text-muted-dark truncate max-w-[120px]">Owner</span>
                 </div>
             </div>
+        </div>
 
-            <div class="form-group">
-                <label>Script / Notes</label>
-                <textarea id="editScript" placeholder="Write your script or ideas here..."></textarea>
-            </div>
+        <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
+            <div class="px-4 pb-2 text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider">Main</div>
+            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="index.html">
+                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">grid_view</span>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            
+            <div class="px-4 pb-2 pt-4 text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider">Workspace</div>
+            <a class="flex items-center space-x-3 px-4 py-3 text-primary bg-blue-50 dark:bg-blue-900/20 rounded-xl transition-colors" href="content.html">
+                <span class="material-icons-outlined text-xl">campaign</span>
+                <span class="font-medium">Content Pipeline</span>
+            </a>
+            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="calendar.html">
+                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">calendar_today</span>
+                <span class="font-medium">Calendar</span>
+            </a>
+             <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="memory.html">
+                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">psychology</span>
+                <span class="font-medium">Memory Bank</span>
+            </a>
 
-            <div class="form-group">
-                <label>Media / Assets URL</label>
-                <input type="text" id="editMedia" placeholder="https://drive.google.com/...">
+            <div class="px-4 pb-2 pt-4 text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider">Team</div>
+            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="team.html">
+                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">groups</span>
+                <span class="font-medium">Structure</span>
+            </a>
+            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="office.html">
+                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">apartment</span>
+                <span class="font-medium">Digital Office</span>
+            </a>
+        </nav>
+
+        <div class="p-4 mt-auto">
+            <div class="bg-gradient-to-br from-primary to-blue-600 rounded-2xl p-5 text-white text-center shadow-lg shadow-blue-500/30">
+                <div class="flex items-center justify-center gap-2 mb-1">
+                    <span class="relative flex h-2 w-2">
+                      <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
+                      <span class="relative inline-flex rounded-full h-2 w-2 bg-green-500"></span>
+                    </span>
+                    <h3 class="font-bold text-sm">System Online</h3>
+                </div>
+                <p class="text-xs text-blue-100 mb-2 px-2" id="hamad-status">Hamad is active</p>
             </div>
         </div>
-        <div class="modal-footer">
-            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
-            <button class="btn btn-primary" onclick="saveContent()">Save Changes</button>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full min-w-0 bg-background-light dark:bg-background-dark overflow-hidden transition-colors duration-200">
+        
+        <!-- Top Bar -->
+        <header class="bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark py-4 px-8 flex items-center justify-between flex-shrink-0 z-10">
+            <div class="flex items-center flex-1 max-w-2xl">
+                <span class="material-icons-outlined text-text-muted-light dark:text-text-muted-dark text-xl mr-3">search</span>
+                <input class="bg-transparent border-none text-text-main-light dark:text-text-main-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:ring-0 w-full text-sm" placeholder="Search ideas, scripts, or assets..." type="text"/>
+            </div>
+            <div class="flex items-center space-x-6">
+                <button class="relative text-text-muted-light dark:text-text-muted-dark hover:text-primary transition-colors">
+                    <span class="material-icons-outlined text-2xl">notifications</span>
+                    <span class="absolute top-0 right-0 h-2.5 w-2.5 bg-danger rounded-full border-2 border-surface-light dark:border-surface-dark"></span>
+                </button>
+                <div class="flex items-center space-x-3 pl-6 border-l border-border-light dark:border-border-dark">
+                    <div class="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
+                        <span class="material-icons-outlined">movie</span>
+                    </div>
+                    <div class="flex flex-col hidden md:flex">
+                        <span class="text-sm font-semibold text-text-main-light dark:text-text-main-dark">Hamad Studio</span>
+                        <span class="text-xs text-text-muted-light dark:text-text-muted-dark">Production</span>
+                    </div>
+                </div>
+                <button class="p-2 rounded-full bg-background-light dark:bg-background-dark text-text-muted-light dark:text-text-muted-dark hover:text-primary transition-colors" onclick="document.documentElement.classList.toggle('dark')">
+                    <span class="material-icons-outlined dark:hidden">dark_mode</span>
+                    <span class="material-icons-outlined hidden dark:block">light_mode</span>
+                </button>
+            </div>
+        </header>
+
+        <!-- Pipeline Board -->
+        <div class="flex-1 overflow-hidden flex flex-col relative">
+            
+            <div class="px-8 py-6 flex items-end justify-between">
+                <div>
+                    <h1 class="text-2xl font-bold text-text-main-light dark:text-text-main-dark">Content Pipeline</h1>
+                    <p class="text-text-muted-light dark:text-text-muted-dark text-sm mt-1">Manage creative workflow from ideation to publishing.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <div class="flex -space-x-2 mr-2" id="avatars-preview">
+                        <!-- Injected -->
+                    </div>
+                    <button class="px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-soft transition-colors flex items-center" onclick="openModal()">
+                        <span class="material-icons-outlined text-base mr-2">add</span> Add Content
+                    </button>
+                </div>
+            </div>
+
+            <!-- Scrollable Columns Area -->
+            <div class="flex-1 overflow-x-auto overflow-y-hidden px-8 pb-8 pipeline-scroll" id="board-container">
+                <div class="flex h-full space-x-6 min-w-max" id="pipeline-columns">
+                    <!-- Columns injected here -->
+                    <div class="text-text-muted-light dark:text-text-muted-dark p-10">Loading pipeline data...</div>
+                </div>
+            </div>
+            
+        </div>
+    </main>
+
+    <!-- Modal (Add/Edit) -->
+    <div class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" id="editModal">
+        <div class="bg-surface-light dark:bg-surface-dark w-full max-w-2xl rounded-2xl shadow-2xl border border-border-light dark:border-border-dark flex flex-col max-h-[90vh]">
+            <div class="p-6 border-b border-border-light dark:border-border-dark flex justify-between items-center">
+                <h3 class="text-lg font-bold text-text-main-light dark:text-text-main-dark" id="modalTitle">New Content</h3>
+                <button class="text-text-muted-light dark:text-text-muted-dark hover:text-danger transition-colors" onclick="closeModal()">
+                    <span class="material-icons-outlined">close</span>
+                </button>
+            </div>
+            <div class="p-6 overflow-y-auto space-y-4">
+                <input type="hidden" id="editId">
+                <div>
+                    <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Title</label>
+                    <input type="text" id="editTitle" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2 text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Video Title">
+                </div>
+                <div class="grid grid-cols-2 gap-4">
+                    <div>
+                        <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Stage</label>
+                        <select id="editStage" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2 text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary">
+                            <option value="idea">💡 Ideation</option>
+                            <option value="drafting">📝 Scripting</option>
+                            <option value="review">👀 Review</option>
+                            <option value="production">🎥 Production</option>
+                            <option value="publishing">🚀 Publishing</option>
+                            <option value="published">✅ Published</option>
+                        </select>
+                    </div>
+                    <div>
+                        <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Platform</label>
+                        <select id="editPlatform" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2 text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary">
+                            <option value="YouTube">YouTube</option>
+                            <option value="TikTok">TikTok</option>
+                            <option value="Instagram">Instagram</option>
+                            <option value="Blog">Blog</option>
+                            <option value="LinkedIn">LinkedIn</option>
+                        </select>
+                    </div>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Script / Notes</label>
+                    <textarea id="editScript" rows="6" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2 text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary" placeholder="Write your script here..."></textarea>
+                </div>
+                <div>
+                    <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Media Link</label>
+                    <input type="text" id="editMedia" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2 text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary" placeholder="Google Drive / Dropbox Link">
+                </div>
+            </div>
+            <div class="p-6 border-t border-border-light dark:border-border-dark flex justify-end gap-3">
+                <button class="px-4 py-2 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-lg font-medium transition-colors" onclick="closeModal()">Cancel</button>
+                <button class="px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-lg font-medium shadow-soft transition-colors" onclick="saveContent()">Save Changes</button>
+            </div>
         </div>
     </div>
-</div>
 
-<script>
-    const { Client, Databases, Query, ID } = Appwrite;
-    const client = new Client();
-    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
-    const databases = new Databases(client);
-    
-    const DB_ID = 'hamad_ops';
-    const COLL_CONTENT = 'content_pipeline';
+    <script>
+        const { Client, Databases, Query, ID } = Appwrite;
+        const client = new Client();
+        client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
+        const databases = new Databases(client);
+        
+        const DB_ID = 'hamad_ops';
+        const COLL_CONTENT = 'content_pipeline';
+        const COLL_AGENTS = 'agents';
 
-    const stages = [
-        { id: 'idea', label: '💡 Idea' },
-        { id: 'drafting', label: '📝 Drafting' },
-        { id: 'review', label: '👀 Review' },
-        { id: 'production', label: '🎥 Production' },
-        { id: 'publishing', label: '🚀 Publishing' },
-        { id: 'published', label: '✅ Published' }
-    ];
+        const stages = [
+            { id: 'idea', label: 'Ideation', color: 'bg-indigo-500', countBg: 'bg-indigo-100 dark:bg-indigo-900/30', countText: 'text-indigo-600 dark:text-indigo-400' },
+            { id: 'drafting', label: 'Scripting', color: 'bg-blue-500', countBg: 'bg-blue-100 dark:bg-blue-900/30', countText: 'text-blue-600 dark:text-blue-400' },
+            { id: 'review', label: 'Review', color: 'bg-purple-500', countBg: 'bg-purple-100 dark:bg-purple-900/30', countText: 'text-purple-600 dark:text-purple-400' },
+            { id: 'production', label: 'Media Attachment', color: 'bg-orange-500', countBg: 'bg-orange-100 dark:bg-orange-900/30', countText: 'text-orange-600 dark:text-orange-400' },
+            { id: 'publishing', label: 'Publishing', color: 'bg-green-500', countBg: 'bg-green-100 dark:bg-green-900/30', countText: 'text-green-600 dark:text-green-400' },
+            { id: 'published', label: 'Done', color: 'bg-gray-500', countBg: 'bg-gray-100 dark:bg-gray-700', countText: 'text-gray-600 dark:text-gray-300' }
+        ];
 
-    let currentContent = [];
+        let currentContent = [];
+        const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500'];
 
-    async function loadPipeline() {
-        try {
-            const res = await databases.listDocuments(DB_ID, COLL_CONTENT, [Query.limit(100)]);
-            currentContent = res.documents;
-            renderPipeline();
-        } catch (error) {
-            console.error(error);
+        async function init() {
+            await Promise.all([loadPipeline(), loadAgents()]);
+            setInterval(loadPipeline, 5000);
         }
-    }
 
-    function renderPipeline() {
-        const container = document.getElementById('pipeline-container');
-        container.innerHTML = stages.map(stage => {
-            const stageItems = currentContent.filter(c => c.stage === stage.id);
+        async function loadAgents() {
+            try {
+                const res = await databases.listDocuments(DB_ID, COLL_AGENTS, [Query.limit(5)]);
+                const container = document.getElementById('avatars-preview');
+                container.innerHTML = res.documents.map((a, i) => `
+                    <div class="w-8 h-8 rounded-full border-2 border-surface-light dark:border-surface-dark flex items-center justify-center text-xs text-white font-bold ${colors[i % colors.length]}" title="${a.name}">
+                        ${a.name.charAt(0)}
+                    </div>
+                `).join('');
+                
+                const hamad = res.documents.find(a => a.name === 'Hamad');
+                if(hamad) document.getElementById('hamad-status').innerText = hamad.currentTask || 'Active';
+                
+            } catch(e) { console.error(e); }
+        }
+
+        async function loadPipeline() {
+            try {
+                const res = await databases.listDocuments(DB_ID, COLL_CONTENT, [Query.limit(100)]);
+                currentContent = res.documents;
+                renderBoard();
+            } catch (error) { console.error(error); }
+        }
+
+        function renderBoard() {
+            const container = document.getElementById('pipeline-columns');
+            container.innerHTML = stages.map(stage => {
+                const items = currentContent.filter(c => c.stage === stage.id);
+                
+                return `
+                <div class="w-80 flex flex-col h-full flex-shrink-0">
+                    <div class="flex items-center justify-between mb-4 px-1">
+                        <div class="flex items-center">
+                            <span class="w-3 h-3 rounded-full ${stage.color} mr-2"></span>
+                            <h3 class="font-semibold text-text-main-light dark:text-text-main-dark">${stage.label}</h3>
+                            <span class="ml-2 px-2 py-0.5 ${stage.countBg} ${stage.countText} text-xs rounded-full font-medium">${items.length}</span>
+                        </div>
+                        <button class="text-text-muted-light dark:text-text-muted-dark hover:text-text-main-light dark:hover:text-text-main-dark">
+                            <span class="material-icons-outlined text-lg">more_horiz</span>
+                        </button>
+                    </div>
+                    <div class="flex-1 overflow-y-auto pr-2 space-y-3 custom-scrollbar pb-4">
+                        ${items.map(item => createCard(item)).join('')}
+                        <button onclick="openModal('${stage.id}')" class="w-full py-2 border-2 border-dashed border-border-light dark:border-border-dark rounded-xl text-text-muted-light dark:text-text-muted-dark hover:border-primary hover:text-primary transition-colors text-sm font-medium flex items-center justify-center">
+                            <span class="material-icons-outlined text-base mr-1">add</span> Add Content
+                        </button>
+                    </div>
+                </div>`;
+            }).join('');
+        }
+
+        function createCard(item) {
+            let badgeColor = 'bg-gray-100 dark:bg-gray-700 text-gray-600 dark:text-gray-300';
+            if(item.platform === 'YouTube') badgeColor = 'bg-red-100 dark:bg-red-900/20 text-red-600 dark:text-red-400';
+            if(item.platform === 'TikTok') badgeColor = 'bg-black text-white dark:bg-white dark:text-black';
+            if(item.platform === 'Instagram') badgeColor = 'bg-purple-100 dark:bg-purple-900/20 text-purple-600 dark:text-purple-400';
+            if(item.platform === 'LinkedIn') badgeColor = 'bg-blue-100 dark:bg-blue-900/20 text-blue-600 dark:text-blue-400';
+
+            const safeTitle = item.title.replace(/"/g, '&quot;');
+            
             return `
-                <div class="stage-column stage-${stage.id}">
-                    <div class="stage-header">
-                        <span>${stage.label}</span>
-                        <span>${stageItems.length}</span>
+            <div onclick="openEditModal('${item.$id}')" class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft border border-border-light dark:border-border-dark group hover:border-primary/50 dark:hover:border-primary/50 transition-all cursor-pointer">
+                <div class="flex justify-between items-start mb-2">
+                    <span class="px-2 py-1 ${badgeColor} text-xs rounded font-medium">${item.platform}</span>
+                    <button class="opacity-0 group-hover:opacity-100 text-text-muted-light dark:text-text-muted-dark hover:text-primary transition-all">
+                        <span class="material-icons-outlined text-base">edit</span>
+                    </button>
+                </div>
+                <h4 class="font-semibold text-text-main-light dark:text-text-main-dark mb-2 line-clamp-2 text-sm">${safeTitle}</h4>
+                ${item.script ? `<p class="text-xs text-text-muted-light dark:text-text-muted-dark mb-3 line-clamp-2">${item.script.substring(0,60)}...</p>` : ''}
+                
+                <div class="flex items-center justify-between pt-2 border-t border-border-light dark:border-border-dark mt-2">
+                    <div class="flex items-center space-x-2 text-xs text-text-muted-light dark:text-text-muted-dark">
+                        ${item.mediaUrl ? `<span class="flex items-center text-primary"><span class="material-icons-outlined text-sm mr-1">attach_file</span> Media</span>` : ''}
                     </div>
-                    <div class="cards-container">
-                        ${stageItems.map(item => createCard(item)).join('')}
+                    <div class="w-6 h-6 rounded-full bg-blue-500 flex items-center justify-center text-[10px] text-white font-bold">
+                        ${(item.assignee || 'H').charAt(0)}
                     </div>
                 </div>
-            `;
-        }).join('');
-    }
+            </div>`;
+        }
 
-    function createCard(item) {
-        let badgeClass = 'badge-yt';
-        if(item.platform === 'TikTok') badgeClass = 'badge-tt';
-        if(item.platform === 'Instagram') badgeClass = 'badge-ig';
-        if(item.platform === 'Blog') badgeClass = 'badge-blog';
+        // Modal Logic
+        function openModal(defaultStage = 'idea') {
+            document.getElementById('editModal').classList.remove('hidden');
+            document.getElementById('modalTitle').innerText = 'New Content';
+            document.getElementById('editId').value = '';
+            document.getElementById('editTitle').value = '';
+            document.getElementById('editStage').value = defaultStage;
+            document.getElementById('editPlatform').value = 'YouTube';
+            document.getElementById('editScript').value = '';
+            document.getElementById('editMedia').value = '';
+        }
 
-        // Escaping simple
-        const safeTitle = item.title.replace(/"/g, '&quot;');
-        
-        return `
-            <div class="content-card" onclick="openModal('${item.$id}')">
-                <div class="card-badges">
-                    <span class="badge ${badgeClass}">${item.platform}</span>
-                </div>
-                <div class="card-title">${safeTitle}</div>
-                <div class="card-preview">${item.script ? item.script.substring(0, 100) + '...' : 'No script yet...'}</div>
-                <div class="card-footer">
-                    <span>${item.assignee || 'Unassigned'}</span>
-                    ${item.mediaUrl ? '<i class="fas fa-paperclip"></i>' : ''}
-                </div>
-            </div>
-        `;
-    }
-
-    // Modal Logic
-    function openModal(id = null) {
-        const modal = document.getElementById('editModal');
-        modal.style.display = 'flex';
-        
-        if (id) {
+        function openEditModal(id) {
             const item = currentContent.find(c => c.$id === id);
+            if(!item) return;
+            
+            document.getElementById('editModal').classList.remove('hidden');
             document.getElementById('modalTitle').innerText = 'Edit Content';
             document.getElementById('editId').value = item.$id;
             document.getElementById('editTitle').value = item.title;
@@ -315,63 +373,37 @@
             document.getElementById('editPlatform').value = item.platform;
             document.getElementById('editScript').value = item.script || '';
             document.getElementById('editMedia').value = item.mediaUrl || '';
-        } else {
-            document.getElementById('modalTitle').innerText = 'New Content Idea';
-            document.getElementById('editId').value = '';
-            document.getElementById('editTitle').value = '';
-            document.getElementById('editStage').value = 'idea';
-            document.getElementById('editPlatform').value = 'YouTube';
-            document.getElementById('editScript').value = '';
-            document.getElementById('editMedia').value = '';
         }
-    }
 
-    function closeModal() {
-        document.getElementById('editModal').style.display = 'none';
-    }
+        function closeModal() {
+            document.getElementById('editModal').classList.add('hidden');
+        }
 
-    async function saveContent() {
-        const id = document.getElementById('editId').value;
-        const data = {
-            title: document.getElementById('editTitle').value,
-            stage: document.getElementById('editStage').value,
-            platform: document.getElementById('editPlatform').value,
-            script: document.getElementById('editScript').value,
-            mediaUrl: document.getElementById('editMedia').value,
-            assignee: 'Hamad' // Default to self for now, or could add field
-        };
+        async function saveContent() {
+            const id = document.getElementById('editId').value;
+            const data = {
+                title: document.getElementById('editTitle').value,
+                stage: document.getElementById('editStage').value,
+                platform: document.getElementById('editPlatform').value,
+                script: document.getElementById('editScript').value,
+                mediaUrl: document.getElementById('editMedia').value,
+                assignee: 'Hamad' 
+            };
 
-        try {
-            if (id) {
-                await databases.updateDocument(DB_ID, COLL_CONTENT, id, data);
-            } else {
-                await databases.createDocument(DB_ID, COLL_CONTENT, ID.unique(), data);
+            try {
+                if (id) {
+                    await databases.updateDocument(DB_ID, COLL_CONTENT, id, data);
+                } else {
+                    await databases.createDocument(DB_ID, COLL_CONTENT, ID.unique(), data);
+                }
+                closeModal();
+                loadPipeline(); 
+            } catch (error) {
+                alert('Error saving: ' + error.message);
             }
-            closeModal();
-            loadPipeline(); // Refresh
-        } catch (error) {
-            alert('Error saving: ' + error.message);
         }
-    }
-    
-    // Close modal on outside click
-    window.onclick = function(event) {
-        if (event.target == document.getElementById('editModal')) {
-            closeModal();
-        }
-    }
 
-    // Clock
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
-    }, 1000);
-
-    // Initial Load
-    loadPipeline();
-    // Poll for updates (semi-realtime)
-    setInterval(loadPipeline, 5000);
-
-</script>
-
+        init();
+    </script>
 </body>
 </html>
