@@ -1,0 +1,310 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Hamad Digital Office</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --floor-bg: #1e293b;
+            --desk-bg: #334155;
+            --screen-off: #1e293b;
+            --screen-on: #3b82f6; /* Blue light */
+            --accent: #3b82f6;
+            --text: #e2e8f0;
+            --success: #22c55e;
+            --danger: #ef4444;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            overflow: hidden;
+        }
+
+        /* Header */
+        .header {
+            padding: 20px 40px;
+            border-bottom: 1px solid #334155;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            background: rgba(15, 23, 42, 0.9);
+            z-index: 10;
+        }
+        .header h1 { margin: 0; font-size: 1.5rem; color: var(--accent); display: flex; align-items: center; gap: 10px; }
+        .back-btn { color: #94a3b8; text-decoration: none; display: flex; align-items: center; gap: 8px; font-weight: 500; transition: color 0.2s; }
+        .back-btn:hover { color: white; }
+
+        /* Office Floor */
+        .office-container {
+            flex-grow: 1;
+            position: relative;
+            background-image: 
+                radial-gradient(#334155 1px, transparent 1px),
+                radial-gradient(#334155 1px, transparent 1px);
+            background-position: 0 0, 25px 25px;
+            background-size: 50px 50px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            perspective: 1000px;
+        }
+
+        .floor-plan {
+            width: 80%;
+            height: 70%;
+            background: rgba(30, 41, 59, 0.5);
+            border: 2px solid #334155;
+            border-radius: 20px;
+            position: relative;
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            grid-template-rows: 1fr;
+            gap: 40px;
+            padding: 50px;
+            box-shadow: 0 0 50px rgba(0,0,0,0.5);
+            transform: rotateX(20deg); /* 2.5D Effect */
+        }
+
+        /* Workstation Component */
+        .workstation {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            position: relative;
+            transition: all 0.5s ease;
+        }
+
+        .desk-area {
+            position: relative;
+            width: 200px;
+            height: 120px;
+            background: var(--desk-bg);
+            border-radius: 12px;
+            border-bottom: 8px solid #1e293b;
+            box-shadow: 0 20px 30px rgba(0,0,0,0.3);
+            display: flex;
+            justify-content: center;
+            align-items: flex-end;
+            padding-bottom: 20px;
+            z-index: 2;
+        }
+
+        .monitor {
+            width: 80px;
+            height: 50px;
+            background: #000;
+            border: 4px solid #475569;
+            border-radius: 4px;
+            position: absolute;
+            top: -30px;
+            transition: all 0.3s;
+            overflow: hidden;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+        
+        .monitor-stand {
+            width: 10px;
+            height: 20px;
+            background: #475569;
+            position: absolute;
+            top: 20px;
+        }
+
+        .screen {
+            width: 100%;
+            height: 100%;
+            background: var(--screen-off);
+            opacity: 0.8;
+        }
+
+        /* Avatar */
+        .avatar-container {
+            position: absolute;
+            bottom: -30px;
+            z-index: 3;
+            transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+        }
+
+        .avatar {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: #475569;
+            border: 3px solid #1e293b;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            font-size: 1.5rem;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            position: relative;
+        }
+
+        .status-dot {
+            width: 15px;
+            height: 15px;
+            background: #94a3b8;
+            border: 2px solid #1e293b;
+            border-radius: 50%;
+            position: absolute;
+            bottom: 0;
+            right: 0;
+        }
+
+        /* Meta Info (Hover/Status) */
+        .agent-info {
+            background: rgba(15, 23, 42, 0.9);
+            padding: 10px 15px;
+            border-radius: 8px;
+            border: 1px solid #334155;
+            position: absolute;
+            top: -100px;
+            text-align: center;
+            width: 180px;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            pointer-events: none;
+        }
+        .workstation:hover .agent-info { opacity: 1; transform: translateY(0); }
+        .agent-name { font-weight: bold; color: white; display: block; margin-bottom: 4px; }
+        .agent-task { font-size: 0.8rem; color: #94a3b8; display: block; }
+
+        /* States: Working */
+        .workstation.working .screen {
+            background: var(--screen-on);
+            box-shadow: 0 0 20px var(--accent);
+            animation: flicker 0.1s infinite;
+        }
+        .workstation.working .avatar-container {
+            transform: translateY(-20px) scale(1.1); /* Sit closer */
+        }
+        .workstation.working .status-dot {
+            background: var(--success);
+            box-shadow: 0 0 10px var(--success);
+        }
+        
+        /* Specific Styles for Hamad (The Boss Desk) */
+        .workstation.agent-Hamad { transform: scale(1.1); }
+        .workstation.agent-Hamad .desk-area { width: 240px; background: #1e3a8a; } /* Blue desk */
+        .workstation.agent-Hamad .avatar { background: var(--accent); color: white; }
+
+        @keyframes flicker {
+            0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.95; }
+        }
+
+        @keyframes typing {
+            0% { transform: translateY(0); } 50% { transform: translateY(-2px); } 100% { transform: translateY(0); }
+        }
+        .workstation.working .avatar { animation: typing 0.5s infinite; }
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div style="display:flex; align-items:center; gap:20px">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
+        <h1><i class="fas fa-building"></i> Digital Office <span id="clock" style="font-size:0.9rem; color:#64748b; margin-left:15px; font-weight:normal">--:--</span></h1>
+    </div>
+    <div style="font-size:0.9rem; color:#94a3b8">
+        <span style="margin-right:15px"><span style="color:var(--success)">●</span> Working</span>
+        <span><span style="color:#94a3b8">●</span> Idle</span>
+    </div>
+</div>
+
+<div class="office-container">
+    <div class="floor-plan" id="office-floor">
+        <!-- Agents will be injected here -->
+        <div style="color:white; grid-column:1/-1; text-align:center;">Loading Office...</div>
+    </div>
+</div>
+
+<script>
+    const { Client, Databases, Query } = Appwrite;
+    const client = new Client();
+    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
+    const databases = new Databases(client);
+    
+    const DB_ID = 'hamad_ops';
+    const COLL_AGENTS = 'agents';
+
+    async function updateOffice() {
+        try {
+            const res = await databases.listDocuments(DB_ID, COLL_AGENTS, [Query.limit(10)]);
+            renderOffice(res.documents);
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function renderOffice(agents) {
+        const floor = document.getElementById('office-floor');
+        
+        // Sort: H2 (Left), Hamad (Center), H3 (Right)
+        // Or just map them. Let's try to find Hamad and put him in middle.
+        
+        const hamad = agents.find(a => a.name === 'Hamad');
+        const others = agents.filter(a => a.name !== 'Hamad');
+        
+        // simple layout array
+        const layout = [others[0], hamad, others[1]].filter(Boolean); // H2, Hamad, H3
+
+        floor.innerHTML = layout.map(agent => {
+            const isWorking = agent.status.toLowerCase() === 'online' || agent.status.toLowerCase() === 'working';
+            const stateClass = isWorking ? 'working' : 'idle';
+            const initials = agent.name.substring(0, 2).toUpperCase();
+            
+            return `
+                <div class="workstation agent-${agent.name} ${stateClass}">
+                    <div class="agent-info">
+                        <span class="agent-name">${agent.name}</span>
+                        <span class="agent-task">${isWorking ? (agent.currentTask || 'Working...') : 'Away'}</span>
+                    </div>
+
+                    <div class="monitor">
+                        <div class="screen"></div>
+                        <!-- Code lines effect could go here -->
+                    </div>
+                    <div class="monitor-stand"></div>
+                    
+                    <div class="desk-area">
+                        <!-- Items on desk could go here -->
+                    </div>
+
+                    <div class="avatar-container">
+                        <div class="avatar">
+                            ${agent.name === 'Hamad' ? '<i class="fas fa-bolt"></i>' : initials}
+                            <div class="status-dot"></div>
+                        </div>
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    // Clock
+    setInterval(() => {
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US');
+    }, 1000);
+
+    // Loop
+    updateOffice();
+    setInterval(updateOffice, 3000); // Live updates
+
+</script>
+
+</body>
+</html>
