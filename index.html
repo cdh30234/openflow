@@ -3,16 +3,20 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Hamad Operations Board</title>
+    <title>⚡ Hamad Mission Control v2</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
     <style>
         :root {
             --bg: #0f172a;
             --card-bg: #1e293b;
             --text: #e2e8f0;
+            --text-muted: #94a3b8;
             --accent: #3b82f6;
-            --todo: #ef4444;
-            --doing: #eab308;
-            --done: #22c55e;
+            --success: #22c55e;
+            --warning: #eab308;
+            --danger: #ef4444;
+            --purple: #a855f7;
+            --cyan: #06b6d4;
         }
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
@@ -21,141 +25,290 @@
             margin: 0;
             padding: 20px;
         }
-        header {
-            text-align: center;
-            margin-bottom: 30px;
-            border-bottom: 2px solid var(--card-bg);
-            padding-bottom: 20px;
-        }
-        h1 { margin: 0; font-size: 2.5rem; }
-        .subtitle { color: #94a3b8; margin-top: 5px; }
         
+        /* Layout */
+        .container { max-width: 1600px; margin: 0 auto; }
+        
+        /* Header */
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        .brand h1 { margin: 0; font-size: 2rem; display: flex; align-items: center; gap: 10px; }
+        .system-status { display: flex; gap: 20px; font-size: 0.9rem; }
+        .status-item { display: flex; align-items: center; gap: 8px; }
+        .dot { width: 8px; height: 8px; border-radius: 50%; }
+        .dot.online { background: var(--success); box-shadow: 0 0 10px var(--success); }
+        .dot.idle { background: var(--text-muted); }
+
+        /* Agents Grid */
+        .agents-section { margin-bottom: 40px; }
+        .section-title { font-size: 1.2rem; margin-bottom: 15px; color: var(--text-muted); text-transform: uppercase; letter-spacing: 1px; }
+        .agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+            gap: 20px;
+        }
+        .agent-card {
+            background: var(--card-bg);
+            border-radius: 12px;
+            padding: 20px;
+            border: 1px solid #334155;
+            position: relative;
+            overflow: hidden;
+        }
+        .agent-card::before {
+            content: ''; position: absolute; top:0; left:0; width: 4px; height: 100%;
+        }
+        .agent-h1::before { background: var(--accent); }
+        .agent-h2::before { background: var(--purple); }
+        .agent-h3::before { background: var(--cyan); }
+        
+        .agent-header { display: flex; justify-content: space-between; margin-bottom: 10px; }
+        .agent-name { font-weight: bold; font-size: 1.1rem; }
+        .agent-role { font-size: 0.8rem; color: var(--text-muted); }
+        .agent-status { font-size: 0.8rem; padding: 2px 8px; border-radius: 10px; background: rgba(255,255,255,0.1); }
+        
+        /* Task Board */
         .board {
             display: grid;
-            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-            gap: 20px;
-            max-width: 1400px;
-            margin: 0 auto;
+            grid-template-columns: repeat(auto-fit, minmax(350px, 1fr));
+            gap: 25px;
         }
-        
         .column {
-            background-color: #1e293b50;
-            border-radius: 12px;
-            padding: 15px;
-            border-top: 4px solid;
+            background: #162032;
+            border-radius: 16px;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
         }
-        
-        .col-todo { border-color: var(--todo); }
-        .col-doing { border-color: var(--doing); }
-        .col-done { border-color: var(--done); }
-        
         .col-header {
             display: flex;
             justify-content: space-between;
             align-items: center;
-            margin-bottom: 20px;
+            padding-bottom: 10px;
+            border-bottom: 2px solid #334155;
             font-weight: bold;
-            font-size: 1.2rem;
         }
-        
+        .count-badge { background: #334155; px; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; }
+
+        /* Task Cards */
         .task-card {
-            background-color: var(--card-bg);
+            background: var(--card-bg);
             border-radius: 8px;
             padding: 15px;
-            margin-bottom: 15px;
-            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            border: 1px solid #334155;
             transition: transform 0.2s;
-            border-left: 3px solid transparent;
         }
+        .task-card:hover { transform: translateY(-3px); border-color: var(--accent); }
         
-        .task-card:hover { transform: translateY(-2px); }
+        .task-top { display: flex; justify-content: space-between; margin-bottom: 10px; font-size: 0.8rem; color: var(--text-muted); }
+        .task-id { font-family: monospace; opacity: 0.7; }
         
-        .task-meta {
+        .task-title { font-weight: 600; margin-bottom: 8px; line-height: 1.4; }
+        
+        .progress-bar {
+            height: 4px; background: #334155; border-radius: 2px; margin: 10px 0; overflow: hidden;
+        }
+        .progress-fill { height: 100%; background: var(--accent); width: 0%; transition: width 0.5s; }
+        
+        .task-footer {
             display: flex;
             justify-content: space-between;
-            font-size: 0.85rem;
-            color: #94a3b8;
-            margin-top: 10px;
+            align-items: center;
+            margin-top: 15px;
+            padding-top: 10px;
+            border-top: 1px solid #334155;
         }
+        .assignee-badge { display: flex; align-items: center; gap: 6px; font-size: 0.85rem; }
+        .avatar { width: 20px; height: 20px; border-radius: 50%; background: #475569; display: flex; align-items: center; justify-content: center; font-size: 10px; }
         
-        .tag {
-            background-color: #334155;
-            padding: 2px 8px;
-            border-radius: 4px;
-            font-size: 0.75rem;
+        .actions { display: flex; gap: 8px; }
+        .action-btn {
+            background: none; border: none; color: var(--text-muted); cursor: pointer; transition: color 0.2s;
         }
+        .action-btn:hover { color: var(--text); }
+        .action-btn.stop:hover { color: var(--danger); }
         
-        .assignee { display: flex; align-items: center; gap: 5px; }
+        /* Utility */
+        .tag { padding: 2px 6px; border-radius: 4px; font-size: 0.7rem; text-transform: uppercase; font-weight: bold; }
+        .tag.high { background: rgba(239, 68, 68, 0.2); color: var(--danger); }
+        .tag.medium { background: rgba(234, 179, 8, 0.2); color: var(--warning); }
+        .tag.system { background: rgba(59, 130, 246, 0.2); color: var(--accent); }
+
     </style>
 </head>
 <body>
 
-<header>
-    <h1>⚡ Hamad Ops Board</h1>
-    <div class="subtitle">Mission Control Center | Mohammed & Hamad</div>
-</header>
-
-<div class="board">
-    <!-- To Do Column -->
-    <div class="column col-todo">
-        <div class="col-header">
-            <span>📋 الانتظار (To Do)</span>
-            <span id="count-todo">2</span>
+<div class="container">
+    <header>
+        <div class="brand">
+            <h1>⚡ Hamad Mission Control <span style="font-size:0.5em; opacity:0.5; margin-right:10px">v2.0</span></h1>
         </div>
-        
-        <div class="task-card">
-            <div style="margin-bottom:8px">تحديد روتين المراجعة الأسبوعية</div>
-            <div class="task-meta">
-                <span class="tag">System</span>
-                <span class="assignee">👤 Mohammed</span>
+        <div class="system-status">
+            <div class="status-item"><span class="dot online"></span> System Operational</div>
+            <div class="status-item"><i class="fas fa-clock"></i> <span id="clock">--:--</span></div>
+        </div>
+    </header>
+
+    <!-- AGENTS SECTION -->
+    <div class="agents-section">
+        <div class="section-title"><i class="fas fa-robot"></i> Active Units (الوكلاء)</div>
+        <div class="agents-grid">
+            <!-- Hamad -->
+            <div class="agent-card agent-h1">
+                <div class="agent-header">
+                    <span class="agent-name">⚡ Hamad (H1)</span>
+                    <span class="agent-status" style="color:var(--success)">ONLINE</span>
+                </div>
+                <div class="agent-role">Chief Operator</div>
+                <div style="margin-top:10px; font-size:0.9rem">
+                    <i class="fas fa-tasks"></i> Active: <strong>Managing Ops</strong><br>
+                    <i class="fas fa-memory"></i> Focus: <strong>Dashboard Upgrade</strong>
+                </div>
             </div>
-        </div>
 
-        <div class="task-card">
-            <div style="margin-bottom:8px">فحص اتصالات N8N</div>
-            <div class="task-meta">
-                <span class="tag">Tech</span>
-                <span class="assignee">🤖 Hamad</span>
+            <!-- H2 (Execution) -->
+            <div class="agent-card agent-h2">
+                <div class="agent-header">
+                    <span class="agent-name">🛠️ H2 (Exec)</span>
+                    <span class="agent-status">IDLE</span>
+                </div>
+                <div class="agent-role">Task Execution</div>
+                <div style="margin-top:10px; font-size:0.9rem; opacity:0.6">
+                    Waiting for assignment...
+                </div>
+            </div>
+
+            <!-- H3 (Dev) -->
+            <div class="agent-card agent-h3">
+                <div class="agent-header">
+                    <span class="agent-name">💻 H3 (Dev)</span>
+                    <span class="agent-status">IDLE</span>
+                </div>
+                <div class="agent-role">Technical Implementation</div>
+                <div style="margin-top:10px; font-size:0.9rem; opacity:0.6">
+                    Waiting for assignment...
+                </div>
             </div>
         </div>
     </div>
 
-    <!-- Doing Column -->
-    <div class="column col-doing">
-        <div class="col-header">
-            <span>🚀 قيد التنفيذ (In Progress)</span>
-            <span id="count-doing">1</span>
-        </div>
+    <!-- TASK BOARD -->
+    <div class="section-title"><i class="fas fa-layer-group"></i> Operations Board</div>
+    <div class="board">
         
-        <div class="task-card" style="border-left-color: var(--doing)">
-            <div style="margin-bottom:8px"><strong>بناء لوحة المهام الخاصة (Dashboard)</strong></div>
-            <div class="task-meta">
-                <span class="tag">Dev</span>
-                <span class="assignee">🤖 Hamad</span>
+        <!-- BACKLOG / TODO -->
+        <div class="column">
+            <div class="col-header">
+                <span>📋 الانتظار (Backlog)</span>
+                <span class="count-badge">2</span>
             </div>
-        </div>
-    </div>
 
-    <!-- Done Column -->
-    <div class="column col-done">
-        <div class="col-header">
-            <span>✅ مكتمل (Done)</span>
-            <span id="count-done">1</span>
-        </div>
-        
-        <div class="task-card" style="opacity: 0.7">
-            <div style="margin-bottom:8px"><s>تهيئة المشروع الأولي</s></div>
-            <div class="task-meta">
-                <span class="tag">Admin</span>
-                <span class="assignee">🤖 Hamad</span>
+            <div class="task-card">
+                <div class="task-top">
+                    <span class="task-id">#T-002</span>
+                    <span class="tag medium">Medium</span>
+                </div>
+                <div class="task-title">تحديد روتين المراجعة الأسبوعية</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="task-footer">
+                    <div class="assignee-badge"><div class="avatar" style="background:#64748b">M</div> Mohammed</div>
+                    <div class="actions">
+                        <button class="action-btn" title="Start"><i class="fas fa-play"></i></button>
+                    </div>
+                </div>
+            </div>
+
+            <div class="task-card">
+                <div class="task-top">
+                    <span class="task-id">#T-003</span>
+                    <span class="tag high">High</span>
+                </div>
+                <div class="task-title">فحص اتصالات N8N</div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 0%"></div></div>
+                <div class="task-footer">
+                    <div class="assignee-badge"><div class="avatar" style="background:var(--accent)">H</div> Hamad</div>
+                    <div class="actions">
+                        <button class="action-btn" title="Prioritize"><i class="fas fa-arrow-up"></i></button>
+                    </div>
+                </div>
             </div>
         </div>
+
+        <!-- DOING -->
+        <div class="column" style="border-top: 4px solid var(--warning)">
+            <div class="col-header">
+                <span>🚀 قيد التنفيذ (Active)</span>
+                <span class="count-badge">1</span>
+            </div>
+
+            <div class="task-card" style="border-left: 3px solid var(--warning)">
+                <div class="task-top">
+                    <span class="task-id">#T-001</span>
+                    <span class="tag system">System</span>
+                </div>
+                <div class="task-title">تطوير لوحة التحكم (v2.0)</div>
+                <div style="font-size:0.85rem; color:var(--text-muted); margin-bottom:5px">
+                    إضافة تفاصيل الوكلاء، حالة النظام، وأدوات التحكم.
+                </div>
+                <div class="progress-bar"><div class="progress-fill" style="width: 80%; background:var(--warning)"></div></div>
+                <div class="task-footer">
+                    <div class="assignee-badge"><div class="avatar" style="background:var(--accent)">H</div> Hamad</div>
+                    <div class="actions">
+                        <button class="action-btn stop" title="Pause/Stop"><i class="fas fa-pause"></i></button>
+                        <button class="action-btn" title="Edit"><i class="fas fa-edit"></i></button>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- DONE -->
+        <div class="column" style="border-top: 4px solid var(--success)">
+            <div class="col-header">
+                <span>✅ مكتمل (Done)</span>
+                <span class="count-badge">1</span>
+            </div>
+
+            <div class="task-card" style="opacity: 0.7">
+                <div class="task-top">
+                    <span class="task-id">#T-000</span>
+                    <span class="tag system">Setup</span>
+                </div>
+                <div class="task-title"><s>تهيئة المشروع الأولي</s></div>
+                <div class="task-footer">
+                    <div class="assignee-badge"><div class="avatar" style="background:var(--accent)">H</div> Hamad</div>
+                    <div class="actions">
+                        <i class="fas fa-check-circle" style="color:var(--success)"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+
     </div>
 </div>
 
 <script>
-    // Simple script to update timestamp
-    console.log("Hamad Ops Board Loaded: " + new Date().toLocaleString());
+    // Live Clock
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('clock').innerText = now.toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+    }
+    setInterval(updateClock, 1000);
+    updateClock();
+
+    // Simulated Interactions (since static)
+    document.querySelectorAll('.action-btn').forEach(btn => {
+        btn.addEventListener('click', () => {
+            alert('Command sent to Hamad: Action queued.');
+        });
+    });
 </script>
 
 </body>
