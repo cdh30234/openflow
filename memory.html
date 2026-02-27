@@ -1,0 +1,206 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Hamad Memory Bank</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --sidebar-bg: #1e293b;
+            --content-bg: #1e293b;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #8b5cf6; /* Violet for memory */
+            --border: #334155;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            height: 100vh;
+            display: flex;
+            overflow: hidden;
+        }
+        
+        /* Sidebar */
+        .sidebar {
+            width: 300px;
+            background: var(--sidebar-bg);
+            border-left: 1px solid var(--border);
+            display: flex;
+            flex-direction: column;
+            padding: 20px;
+        }
+        .brand {
+            font-size: 1.5rem; font-weight: bold; margin-bottom: 20px;
+            color: var(--accent); display: flex; align-items: center; gap: 10px;
+        }
+        .search-box {
+            background: #0f172a;
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            padding: 10px;
+            color: white;
+            width: 100%;
+            box-sizing: border-box;
+            margin-bottom: 20px;
+            font-family: inherit;
+        }
+        .search-box:focus { outline: none; border-color: var(--accent); }
+        
+        .memory-list {
+            flex-grow: 1;
+            overflow-y: auto;
+            display: flex;
+            flex-direction: column;
+            gap: 10px;
+        }
+        .memory-item {
+            padding: 12px;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: background 0.2s;
+            border: 1px solid transparent;
+        }
+        .memory-item:hover { background: rgba(255,255,255,0.05); }
+        .memory-item.active { background: rgba(139, 92, 246, 0.2); border-color: var(--accent); }
+        
+        .mem-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
+        .mem-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; }
+
+        /* Main Content */
+        .main-content {
+            flex-grow: 1;
+            padding: 40px;
+            overflow-y: auto;
+            max-width: 900px;
+            margin: 0 auto;
+        }
+        .document-viewer {
+            background: var(--content-bg);
+            padding: 40px;
+            border-radius: 12px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+            line-height: 1.7;
+        }
+        
+        /* Markdown Styles */
+        .markdown-body h1 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; font-size: 2em; color: var(--accent); }
+        .markdown-body h2 { margin-top: 30px; margin-bottom: 15px; font-size: 1.5em; color: #fff; }
+        .markdown-body ul { padding-right: 20px; }
+        .markdown-body li { margin-bottom: 5px; }
+        .markdown-body code { background: #0f172a; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #f472b6; }
+        .markdown-body pre { background: #0f172a; padding: 15px; border-radius: 8px; overflow-x: auto; }
+        .markdown-body blockquote { border-right: 4px solid var(--accent); margin: 0; padding-right: 15px; color: var(--text-muted); background: rgba(139, 92, 246, 0.1); padding: 10px; border-radius: 4px; }
+        
+        .loading { text-align: center; color: var(--text-muted); margin-top: 50px; }
+        .back-link { position: absolute; top: 20px; left: 20px; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 5px; }
+        .back-link:hover { color: var(--text); }
+
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: var(--bg); }
+        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
+        ::-webkit-scrollbar-thumb:hover { background: #475569; }
+
+    </style>
+</head>
+<body>
+
+<a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
+
+<div class="sidebar">
+    <div class="brand"><i class="fas fa-brain"></i> Memory Bank</div>
+    <input type="text" class="search-box" id="searchInput" placeholder="Search memories...">
+    <div class="memory-list" id="memoryList">
+        <div class="loading">Loading...</div>
+    </div>
+</div>
+
+<div class="main-content">
+    <div id="documentViewer" class="document-viewer markdown-body">
+        <div style="text-align:center; color:#94a3b8; margin-top:100px">
+            <i class="fas fa-book-open" style="font-size:3rem; margin-bottom:20px; opacity:0.5"></i>
+            <p>Select a memory to read</p>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { Client, Databases, Query } = Appwrite;
+    const client = new Client();
+    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
+    const databases = new Databases(client);
+    
+    const DB_ID = 'hamad_ops';
+    const COLL_MEMORIES = 'memories';
+
+    let allMemories = [];
+
+    async function loadMemories() {
+        try {
+            const response = await databases.listDocuments(DB_ID, COLL_MEMORIES, [Query.limit(100), Query.orderDesc('$createdAt')]);
+            allMemories = response.documents;
+            renderList(allMemories);
+        } catch (error) {
+            console.error(error);
+            document.getElementById('memoryList').innerHTML = '<div style="color:red">Error loading memories</div>';
+        }
+    }
+
+    function renderList(memories) {
+        const list = document.getElementById('memoryList');
+        if (memories.length === 0) {
+            list.innerHTML = '<div style="text-align:center; opacity:0.5">No results found</div>';
+            return;
+        }
+
+        list.innerHTML = memories.map(mem => `
+            <div class="memory-item" onclick="viewMemory('${mem.$id}')" id="item-${mem.$id}">
+                <div class="mem-title">${mem.title}</div>
+                <div class="mem-meta">
+                    <span>${new Date(mem.$createdAt).toLocaleDateString()}</span>
+                    <span><i class="fas fa-file-alt"></i></span>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    function viewMemory(id) {
+        // Highlight active item
+        document.querySelectorAll('.memory-item').forEach(el => el.classList.remove('active'));
+        const activeItem = document.getElementById(`item-${id}`);
+        if(activeItem) activeItem.classList.add('active');
+
+        const memory = allMemories.find(m => m.$id === id);
+        if (!memory) return;
+
+        // Render Markdown
+        const viewer = document.getElementById('documentViewer');
+        viewer.innerHTML = marked.parse(memory.content);
+        
+        // Scroll to top
+        document.querySelector('.main-content').scrollTop = 0;
+    }
+
+    // Search functionality
+    document.getElementById('searchInput').addEventListener('input', (e) => {
+        const term = e.target.value.toLowerCase();
+        const filtered = allMemories.filter(m => 
+            m.title.toLowerCase().includes(term) || 
+            m.content.toLowerCase().includes(term)
+        );
+        renderList(filtered);
+    });
+
+    // Init
+    loadMemories();
+
+</script>
+
+</body>
+</html>
