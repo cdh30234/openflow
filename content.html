@@ -1,0 +1,377 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Hamad Content Pipeline</title>
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --column-bg: #162032;
+            --text: #e2e8f0;
+            --text-muted: #94a3b8;
+            --accent: #f43f5e; /* Rose for content */
+            --youtube: #ff0000;
+            --tiktok: #00f2ea;
+            --instagram: #e1306c;
+            --blog: #3b82f6;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+            overflow-x: auto;
+        }
+
+        /* Layout */
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            padding-bottom: 20px;
+            border-bottom: 1px solid #334155;
+        }
+        .header h1 { margin: 0; display: flex; align-items: center; gap: 10px; color: var(--accent); }
+        .nav-link { color: var(--text-muted); text-decoration: none; font-size: 0.9rem; transition: color 0.2s; }
+        .nav-link:hover { color: var(--text); }
+        .back-btn { background: #334155; border: none; padding: 8px 16px; border-radius: 6px; color: white; cursor: pointer; display: flex; align-items: center; gap: 8px; text-decoration: none; }
+        .back-btn:hover { background: #475569; }
+
+        /* Kanban Board */
+        .pipeline {
+            display: flex;
+            gap: 20px;
+            overflow-x: auto;
+            padding-bottom: 20px;
+            min-height: 80vh;
+        }
+        .stage-column {
+            min-width: 300px;
+            max-width: 300px;
+            background: var(--column-bg);
+            border-radius: 12px;
+            display: flex;
+            flex-direction: column;
+            border-top: 4px solid #334155;
+        }
+        
+        .stage-header {
+            padding: 15px;
+            font-weight: bold;
+            display: flex;
+            justify-content: space-between;
+            border-bottom: 1px solid #334155;
+            text-transform: uppercase;
+            font-size: 0.85rem;
+            letter-spacing: 0.5px;
+        }
+
+        .cards-container {
+            padding: 15px;
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+        }
+
+        /* Content Card */
+        .content-card {
+            background: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.2);
+            border: 1px solid #334155;
+            cursor: pointer;
+            transition: transform 0.2s, border-color 0.2s;
+        }
+        .content-card:hover { transform: translateY(-3px); border-color: var(--accent); }
+
+        .card-badges { display: flex; gap: 5px; margin-bottom: 10px; flex-wrap: wrap; }
+        .badge { font-size: 0.7rem; padding: 2px 6px; border-radius: 4px; color: white; }
+        .badge-yt { background: var(--youtube); }
+        .badge-tt { background: var(--tiktok); color: black; }
+        .badge-ig { background: var(--instagram); }
+        .badge-blog { background: var(--blog); }
+        
+        .card-title { font-weight: 600; margin-bottom: 8px; line-height: 1.4; font-size: 0.95rem; }
+        .card-preview { font-size: 0.8rem; color: var(--text-muted); display: -webkit-box; -webkit-line-clamp: 2; -webkit-box-orient: vertical; overflow: hidden; margin-bottom: 10px; }
+        
+        .card-footer {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-size: 0.8rem;
+            color: var(--text-muted);
+            border-top: 1px solid #334155;
+            padding-top: 8px;
+        }
+
+        /* Modal */
+        .modal-overlay {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: rgba(0,0,0,0.7);
+            display: none; justify-content: center; align-items: center;
+            z-index: 1000;
+        }
+        .modal {
+            background: var(--card-bg);
+            width: 90%; max-width: 800px;
+            border-radius: 12px;
+            padding: 0;
+            max-height: 90vh;
+            display: flex;
+            flex-direction: column;
+            border: 1px solid #334155;
+            box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.5);
+        }
+        .modal-header { padding: 20px; border-bottom: 1px solid #334155; display: flex; justify-content: space-between; align-items: center; }
+        .modal-body { padding: 20px; overflow-y: auto; display: flex; flex-direction: column; gap: 20px; }
+        .modal-footer { padding: 20px; border-top: 1px solid #334155; display: flex; justify-content: flex-end; gap: 10px; }
+        
+        .form-group { display: flex; flex-direction: column; gap: 8px; }
+        label { font-size: 0.9rem; color: var(--text-muted); }
+        input, select, textarea {
+            background: #0f172a; border: 1px solid #334155; color: white; padding: 10px; border-radius: 6px; font-family: inherit;
+        }
+        textarea { min-height: 200px; line-height: 1.6; resize: vertical; }
+        
+        .btn { padding: 8px 20px; border-radius: 6px; border: none; cursor: pointer; font-weight: bold; }
+        .btn-primary { background: var(--accent); color: white; }
+        .btn-secondary { background: #334155; color: white; }
+        .close-btn { background: none; border: none; color: var(--text-muted); font-size: 1.5rem; cursor: pointer; }
+
+        /* Stage Colors */
+        .stage-idea { border-color: #94a3b8; }
+        .stage-drafting { border-color: #fbbf24; }
+        .stage-review { border-color: #a855f7; }
+        .stage-production { border-color: #f43f5e; }
+        .stage-publishing { border-color: #3b82f6; }
+        .stage-published { border-color: #22c55e; }
+
+    </style>
+</head>
+<body>
+
+<div class="header">
+    <div style="display:flex; align-items:center; gap:20px">
+        <a href="index.html" class="back-btn"><i class="fas fa-arrow-right"></i> Operations Board</a>
+        <h1><i class="fas fa-video"></i> Hamad Content Pipeline</h1>
+    </div>
+    <div style="display:flex; gap:15px; align-items:center">
+        <span class="nav-link"><i class="fas fa-clock"></i> <span id="clock">--:--</span></span>
+        <button class="btn btn-primary" onclick="openModal()"><i class="fas fa-plus"></i> New Idea</button>
+    </div>
+</div>
+
+<div class="pipeline" id="pipeline-container">
+    <!-- Columns will be injected here -->
+</div>
+
+<!-- Edit Modal -->
+<div class="modal-overlay" id="editModal">
+    <div class="modal">
+        <div class="modal-header">
+            <h2 id="modalTitle">Edit Content</h2>
+            <button class="close-btn" onclick="closeModal()">&times;</button>
+        </div>
+        <div class="modal-body">
+            <input type="hidden" id="editId">
+            
+            <div class="form-group">
+                <label>Title</label>
+                <input type="text" id="editTitle" placeholder="Video Title">
+            </div>
+            
+            <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px">
+                <div class="form-group">
+                    <label>Stage</label>
+                    <select id="editStage">
+                        <option value="idea">💡 Idea</option>
+                        <option value="drafting">📝 Drafting</option>
+                        <option value="review">👀 Review</option>
+                        <option value="production">🎥 Production</option>
+                        <option value="publishing">🚀 Publishing</option>
+                        <option value="published">✅ Published</option>
+                    </select>
+                </div>
+                <div class="form-group">
+                    <label>Platform</label>
+                    <select id="editPlatform">
+                        <option value="YouTube">YouTube</option>
+                        <option value="TikTok">TikTok</option>
+                        <option value="Instagram">Instagram</option>
+                        <option value="Blog">Blog</option>
+                        <option value="Other">Other</option>
+                    </select>
+                </div>
+            </div>
+
+            <div class="form-group">
+                <label>Script / Notes</label>
+                <textarea id="editScript" placeholder="Write your script or ideas here..."></textarea>
+            </div>
+
+            <div class="form-group">
+                <label>Media / Assets URL</label>
+                <input type="text" id="editMedia" placeholder="https://drive.google.com/...">
+            </div>
+        </div>
+        <div class="modal-footer">
+            <button class="btn btn-secondary" onclick="closeModal()">Cancel</button>
+            <button class="btn btn-primary" onclick="saveContent()">Save Changes</button>
+        </div>
+    </div>
+</div>
+
+<script>
+    const { Client, Databases, Query, ID } = Appwrite;
+    const client = new Client();
+    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
+    const databases = new Databases(client);
+    
+    const DB_ID = 'hamad_ops';
+    const COLL_CONTENT = 'content_pipeline';
+
+    const stages = [
+        { id: 'idea', label: '💡 Idea' },
+        { id: 'drafting', label: '📝 Drafting' },
+        { id: 'review', label: '👀 Review' },
+        { id: 'production', label: '🎥 Production' },
+        { id: 'publishing', label: '🚀 Publishing' },
+        { id: 'published', label: '✅ Published' }
+    ];
+
+    let currentContent = [];
+
+    async function loadPipeline() {
+        try {
+            const res = await databases.listDocuments(DB_ID, COLL_CONTENT, [Query.limit(100)]);
+            currentContent = res.documents;
+            renderPipeline();
+        } catch (error) {
+            console.error(error);
+        }
+    }
+
+    function renderPipeline() {
+        const container = document.getElementById('pipeline-container');
+        container.innerHTML = stages.map(stage => {
+            const stageItems = currentContent.filter(c => c.stage === stage.id);
+            return `
+                <div class="stage-column stage-${stage.id}">
+                    <div class="stage-header">
+                        <span>${stage.label}</span>
+                        <span>${stageItems.length}</span>
+                    </div>
+                    <div class="cards-container">
+                        ${stageItems.map(item => createCard(item)).join('')}
+                    </div>
+                </div>
+            `;
+        }).join('');
+    }
+
+    function createCard(item) {
+        let badgeClass = 'badge-yt';
+        if(item.platform === 'TikTok') badgeClass = 'badge-tt';
+        if(item.platform === 'Instagram') badgeClass = 'badge-ig';
+        if(item.platform === 'Blog') badgeClass = 'badge-blog';
+
+        // Escaping simple
+        const safeTitle = item.title.replace(/"/g, '&quot;');
+        
+        return `
+            <div class="content-card" onclick="openModal('${item.$id}')">
+                <div class="card-badges">
+                    <span class="badge ${badgeClass}">${item.platform}</span>
+                </div>
+                <div class="card-title">${safeTitle}</div>
+                <div class="card-preview">${item.script ? item.script.substring(0, 100) + '...' : 'No script yet...'}</div>
+                <div class="card-footer">
+                    <span>${item.assignee || 'Unassigned'}</span>
+                    ${item.mediaUrl ? '<i class="fas fa-paperclip"></i>' : ''}
+                </div>
+            </div>
+        `;
+    }
+
+    // Modal Logic
+    function openModal(id = null) {
+        const modal = document.getElementById('editModal');
+        modal.style.display = 'flex';
+        
+        if (id) {
+            const item = currentContent.find(c => c.$id === id);
+            document.getElementById('modalTitle').innerText = 'Edit Content';
+            document.getElementById('editId').value = item.$id;
+            document.getElementById('editTitle').value = item.title;
+            document.getElementById('editStage').value = item.stage;
+            document.getElementById('editPlatform').value = item.platform;
+            document.getElementById('editScript').value = item.script || '';
+            document.getElementById('editMedia').value = item.mediaUrl || '';
+        } else {
+            document.getElementById('modalTitle').innerText = 'New Content Idea';
+            document.getElementById('editId').value = '';
+            document.getElementById('editTitle').value = '';
+            document.getElementById('editStage').value = 'idea';
+            document.getElementById('editPlatform').value = 'YouTube';
+            document.getElementById('editScript').value = '';
+            document.getElementById('editMedia').value = '';
+        }
+    }
+
+    function closeModal() {
+        document.getElementById('editModal').style.display = 'none';
+    }
+
+    async function saveContent() {
+        const id = document.getElementById('editId').value;
+        const data = {
+            title: document.getElementById('editTitle').value,
+            stage: document.getElementById('editStage').value,
+            platform: document.getElementById('editPlatform').value,
+            script: document.getElementById('editScript').value,
+            mediaUrl: document.getElementById('editMedia').value,
+            assignee: 'Hamad' // Default to self for now, or could add field
+        };
+
+        try {
+            if (id) {
+                await databases.updateDocument(DB_ID, COLL_CONTENT, id, data);
+            } else {
+                await databases.createDocument(DB_ID, COLL_CONTENT, ID.unique(), data);
+            }
+            closeModal();
+            loadPipeline(); // Refresh
+        } catch (error) {
+            alert('Error saving: ' + error.message);
+        }
+    }
+    
+    // Close modal on outside click
+    window.onclick = function(event) {
+        if (event.target == document.getElementById('editModal')) {
+            closeModal();
+        }
+    }
+
+    // Clock
+    setInterval(() => {
+        document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US', {hour: '2-digit', minute:'2-digit'});
+    }, 1000);
+
+    // Initial Load
+    loadPipeline();
+    // Poll for updates (semi-realtime)
+    setInterval(loadPipeline, 5000);
+
+</script>
+
+</body>
+</html>
