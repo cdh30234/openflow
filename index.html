@@ -3,7 +3,7 @@
 <head>
     <meta charset="utf-8"/>
     <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Hamad Mission Control</title>
+    <title>Team Task Board - Hamad Ops</title>
     
     <!-- Fonts -->
     <link href="https://fonts.googleapis.com" rel="preconnect"/>
@@ -14,29 +14,33 @@
     <!-- Tailwind -->
     <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
     <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#2563EB", 
-                        "background-light": "#F3F4F6", 
-                        "background-dark": "#0F172A", 
-                        "surface-light": "#FFFFFF",
-                        "surface-dark": "#1E293B", 
-                        "text-main-light": "#1F2937",
-                        "text-main-dark": "#F8FAFC",
-                    },
-                    fontFamily: {
-                        display: ["'Plus Jakarta Sans'", "sans-serif"],
-                        sans: ["'Plus Jakarta Sans'", "sans-serif"],
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 20px 0 rgba(0, 0, 0, 0.05)',
-                    }
-                },
+      tailwind.config = {
+        darkMode: "class",
+        theme: {
+          extend: {
+            colors: {
+              primary: "#2563EB", 
+              "background-light": "#F3F4F6", 
+              "background-dark": "#0F172A", 
+              "surface-light": "#FFFFFF",
+              "surface-dark": "#1E293B", 
+              "text-main-light": "#1F2937",
+              "text-main-dark": "#F8FAFC",
+              "text-secondary-light": "#6B7280",
+              "text-secondary-dark": "#94A3B8",
             },
-        };
+            fontFamily: {
+              display: ["'Plus Jakarta Sans'", "sans-serif"],
+            },
+            borderRadius: {
+              DEFAULT: "12px",
+            },
+            boxShadow: {
+                'soft': '0 4px 20px 0 rgba(0, 0, 0, 0.05)',
+            }
+          },
+        },
+      };
     </script>
     
     <!-- Appwrite -->
@@ -50,54 +54,43 @@
         body { font-family: 'Plus Jakarta Sans', sans-serif; }
     </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark transition-colors duration-300 flex h-screen overflow-hidden">
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark transition-colors duration-300">
 
+<div class="flex h-screen overflow-hidden">
     <!-- Sidebar -->
     <aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 flex flex-col hidden md:flex z-20">
         <div class="p-6 pb-2">
-            <!-- User Profile -->
             <div class="flex items-center gap-3 mb-6">
-                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold shadow-sm">
-                    M
-                </div>
+                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold shadow-sm">M</div>
                 <div>
                     <h3 class="text-sm font-bold text-gray-900 dark:text-white">Mohammed</h3>
                     <p class="text-xs text-gray-500 dark:text-gray-400">Owner</p>
                 </div>
-                <button class="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-                    <span class="material-icons-round text-sm">unfold_more</span>
-                </button>
             </div>
-            
-            <!-- Search -->
             <div class="relative mb-6">
                 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
                     <span class="material-icons-round text-lg">search</span>
                 </span>
-                <input class="w-full py-2 pl-10 pr-4 text-sm bg-gray-50 dark:bg-slate-700 border-none rounded-lg focus:ring-2 focus:ring-primary text-gray-700 dark:text-gray-200 placeholder-gray-400" placeholder="Jump to..." type="text"/>
+                <input class="w-full py-2 pl-10 pr-4 text-sm bg-gray-50 dark:bg-slate-700 border-none rounded-lg focus:ring-2 focus:ring-primary text-gray-700 dark:text-gray-200 placeholder-gray-400" placeholder="Search..." type="text"/>
             </div>
         </div>
-
-        <!-- Navigation -->
         <nav class="flex-1 overflow-y-auto px-4 space-y-1">
-            <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg shadow-sm group transition-colors" href="index.html">
-                <span class="material-icons-round text-primary">dashboard</span> Mission Control
+            <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg shadow-sm" href="index.html">
+                <span class="material-icons-round text-gray-800 dark:text-gray-200">grid_view</span> Dashboard
             </a>
             
             <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Workspace</div>
-            
-            <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="calendar.html">
-                <span class="material-icons-round text-gray-400 group-hover:text-primary">calendar_today</span> Calendar
-            </a>
             <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="content.html">
                 <span class="material-icons-round text-gray-400 group-hover:text-primary">video_library</span> Content Pipeline
+            </a>
+            <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="calendar.html">
+                <span class="material-icons-round text-gray-400 group-hover:text-primary">calendar_today</span> Calendar
             </a>
             <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="memory.html">
                 <span class="material-icons-round text-gray-400 group-hover:text-primary">psychology</span> Memory Bank
             </a>
 
             <div class="pt-4 pb-2 px-3 text-xs font-semibold text-gray-400 uppercase tracking-wider">Team</div>
-            
             <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="team.html">
                 <span class="material-icons-round text-gray-400 group-hover:text-primary">people</span> Structure
             </a>
@@ -105,13 +98,9 @@
                 <span class="material-icons-round text-gray-400 group-hover:text-primary">apartment</span> Digital Office
             </a>
         </nav>
-
-        <!-- Pro Upgrade / Status -->
+        
         <div class="p-4 mt-auto">
-            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-600 to-indigo-700 p-5 text-center text-white shadow-lg">
-                <div class="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-white/10 blur-xl"></div>
-                <div class="absolute -bottom-4 -left-4 h-20 w-20 rounded-full bg-white/10 blur-xl"></div>
-                
+            <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 p-5 text-center text-white shadow-lg">
                 <div class="flex items-center justify-center gap-2 mb-2">
                     <span class="relative flex h-3 w-3">
                       <span class="animate-ping absolute inline-flex h-full w-full rounded-full bg-green-400 opacity-75"></span>
@@ -126,8 +115,6 @@
 
     <!-- Main Content -->
     <main class="flex-1 flex flex-col h-full relative">
-        
-        <!-- Header -->
         <header class="flex items-center justify-between px-8 py-5 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700 z-10">
             <div class="flex items-center gap-4 w-1/3">
                 <span class="material-icons-round text-gray-400 text-2xl">search</span>
@@ -139,43 +126,38 @@
                     <span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></span>
                 </button>
                 <div class="flex items-center gap-3 border-l border-gray-200 dark:border-gray-700 pl-6">
-                    <div class="w-8 h-8 rounded-full bg-primary/10 flex items-center justify-center text-primary font-bold text-xs">HO</div>
+                    <div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-xs">HO</div>
                     <div class="hidden md:block">
                         <h4 class="text-sm font-bold text-gray-900 dark:text-white leading-tight">Hamad Ops</h4>
                         <p class="text-xs text-gray-500 dark:text-gray-400">Workspace</p>
                     </div>
                     <span class="material-icons-round text-gray-400">expand_more</span>
                 </div>
-                <button class="p-2 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-300 transition-colors" onclick="document.documentElement.classList.toggle('dark')">
+                <button class="p-2 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-300" onclick="document.documentElement.classList.toggle('dark')">
                     <span class="material-icons-round dark:hidden">dark_mode</span>
                     <span class="material-icons-round hidden dark:block">light_mode</span>
                 </button>
             </div>
         </header>
 
-        <!-- Board Area -->
         <div class="flex-1 overflow-x-auto overflow-y-hidden bg-background-light dark:bg-background-dark p-8">
-            
-            <!-- Page Title & Actions -->
             <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
                 <div>
                     <h1 class="text-2xl font-bold text-gray-900 dark:text-white">Active Operations</h1>
-                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage current tasks and team assignments.</p>
+                    <p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage tasks for the upcoming release campaign.</p>
                 </div>
                 <div class="flex items-center gap-3">
                     <div class="flex -space-x-2 overflow-hidden" id="avatars-preview">
-                        <!-- Avatars injected here -->
+                        <!-- Avatars Injected -->
                     </div>
                     <span class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2"></span>
-                    <button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-md transition-colors" onclick="alert('Ask Hamad to add a task!')">
+                    <button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-md transition-colors" onclick="alert('Please ask Hamad to add a task.')">
                         <span class="material-icons-round text-sm">add</span> Add Task
                     </button>
                 </div>
             </div>
 
-            <!-- Kanban Columns -->
             <div class="flex h-full gap-6 pb-4">
-                
                 <!-- To Do -->
                 <div class="w-80 flex-shrink-0 flex flex-col h-full">
                     <div class="flex items-center justify-between mb-4 px-1">
@@ -198,28 +180,13 @@
                 <div class="w-80 flex-shrink-0 flex flex-col h-full">
                     <div class="flex items-center justify-between mb-4 px-1">
                         <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-blue-500 animate-pulse"></span>
+                            <span class="w-2 h-2 rounded-full bg-blue-500"></span>
                             <h3 class="font-semibold text-gray-700 dark:text-gray-200">In Progress</h3>
                             <span class="bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium" id="count-doing">0</span>
                         </div>
                         <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><span class="material-icons-round">more_horiz</span></button>
                     </div>
                     <div class="flex-1 overflow-y-auto pr-2 space-y-3" id="col-doing">
-                        <!-- Items injected here -->
-                    </div>
-                </div>
-
-                <!-- Review (Optional) -->
-                <div class="w-80 flex-shrink-0 flex flex-col h-full">
-                    <div class="flex items-center justify-between mb-4 px-1">
-                        <div class="flex items-center gap-2">
-                            <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
-                            <h3 class="font-semibold text-gray-700 dark:text-gray-200">Review</h3>
-                            <span class="bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium" id="count-review">0</span>
-                        </div>
-                        <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><span class="material-icons-round">more_horiz</span></button>
-                    </div>
-                    <div class="flex-1 overflow-y-auto pr-2 space-y-3" id="col-review">
                         <!-- Items injected here -->
                     </div>
                 </div>
@@ -238,107 +205,102 @@
                         <!-- Items injected here -->
                     </div>
                 </div>
-
             </div>
         </div>
     </main>
+</div>
 
-    <script>
-        const { Client, Databases, Query } = Appwrite;
-        const client = new Client();
-        client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
-        const databases = new Databases(client);
+<script>
+    const { Client, Databases, Query } = Appwrite;
+    const client = new Client();
+    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
+    const databases = new Databases(client);
+    
+    const DB_ID = 'hamad_ops';
+    const COLL_TASKS = 'tasks';
+    const COLL_AGENTS = 'agents';
+
+    const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'];
+
+    async function updateDashboard() {
+        try {
+            const [tasksRes, agentsRes] = await Promise.all([
+                databases.listDocuments(DB_ID, COLL_TASKS, [Query.limit(100)]),
+                databases.listDocuments(DB_ID, COLL_AGENTS, [Query.limit(10)])
+            ]);
+            
+            renderTasks(tasksRes.documents);
+            renderAvatars(agentsRes.documents);
+            updateHamadStatus(agentsRes.documents);
+        } catch (error) { console.error(error); }
+    }
+
+    function updateHamadStatus(agents) {
+        const hamad = agents.find(a => a.name === 'Hamad');
+        if(hamad) {
+            document.getElementById('hamad-status').innerText = hamad.currentTask || 'System Operational';
+        }
+    }
+
+    function renderAvatars(agents) {
+        const container = document.getElementById('avatars-preview');
+        container.innerHTML = agents.slice(0, 4).map((agent, i) => `
+            <div class="h-8 w-8 rounded-full border-2 border-white dark:border-slate-800 flex items-center justify-center text-xs text-white font-bold ${colors[i % colors.length]}" title="${agent.name}">
+                ${agent.name.charAt(0)}
+            </div>
+        `).join('') + (agents.length > 4 ? `
+            <div class="h-8 w-8 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-xs text-gray-500 dark:text-gray-400 ring-2 ring-white dark:ring-slate-800">+${agents.length-4}</div>
+        ` : '');
+    }
+
+    function renderTasks(tasks) {
+        const todo = tasks.filter(t => t.status === 'todo');
+        const doing = tasks.filter(t => t.status === 'doing');
+        const done = tasks.filter(t => t.status === 'done');
+
+        document.getElementById('count-todo').innerText = todo.length;
+        document.getElementById('count-doing').innerText = doing.length;
+        document.getElementById('count-done').innerText = done.length;
+
+        document.getElementById('col-todo').innerHTML = todo.map(t => createCard(t)).join('');
+        document.getElementById('col-doing').innerHTML = doing.map(t => createCard(t)).join('');
+        document.getElementById('col-done').innerHTML = done.map(t => createCard(t)).join('');
+    }
+
+    function createCard(task) {
+        const priorityClass = task.priority.toLowerCase() === 'high' 
+            ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400' 
+            : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400';
         
-        const DB_ID = 'hamad_ops';
-        const COLL_TASKS = 'tasks';
-        const COLL_AGENTS = 'agents';
-
-        // Colors for random assignment
-        const colors = ['bg-red-500', 'bg-blue-500', 'bg-green-500', 'bg-yellow-500', 'bg-purple-500', 'bg-pink-500'];
-
-        async function updateDashboard() {
-            try {
-                const [tasksRes, agentsRes] = await Promise.all([
-                    databases.listDocuments(DB_ID, COLL_TASKS, [Query.limit(100)]),
-                    databases.listDocuments(DB_ID, COLL_AGENTS, [Query.limit(10)])
-                ]);
-                
-                renderTasks(tasksRes.documents);
-                renderAvatars(agentsRes.documents);
-                updateHamadStatus(agentsRes.documents);
-            } catch (error) { console.error(error); }
-        }
-
-        function updateHamadStatus(agents) {
-            const hamad = agents.find(a => a.name === 'Hamad');
-            if(hamad) {
-                document.getElementById('hamad-status').innerText = hamad.currentTask || 'System Operational';
-            }
-        }
-
-        function renderAvatars(agents) {
-            const container = document.getElementById('avatars-preview');
-            container.innerHTML = agents.slice(0, 4).map((agent, i) => `
-                <div class="h-8 w-8 rounded-full border-2 border-white dark:border-slate-800 flex items-center justify-center text-xs text-white font-bold ${colors[i % colors.length]}" title="${agent.name}">
-                    ${agent.name.charAt(0)}
-                </div>
-            `).join('') + (agents.length > 4 ? `
-                <div class="h-8 w-8 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-xs text-gray-500 dark:text-gray-400 ring-2 ring-white dark:ring-slate-800">+${agents.length-4}</div>
-            ` : '');
-        }
-
-        function renderTasks(tasks) {
-            const todo = tasks.filter(t => t.status === 'todo');
-            const doing = tasks.filter(t => t.status === 'doing');
-            const review = tasks.filter(t => t.status === 'review'); // Just in case
-            const done = tasks.filter(t => t.status === 'done');
-
-            document.getElementById('count-todo').innerText = todo.length;
-            document.getElementById('count-doing').innerText = doing.length;
-            document.getElementById('count-review').innerText = review.length;
-            document.getElementById('count-done').innerText = done.length;
-
-            document.getElementById('col-todo').innerHTML = todo.map(t => createCard(t)).join('');
-            document.getElementById('col-doing').innerHTML = doing.map(t => createCard(t)).join('');
-            document.getElementById('col-review').innerHTML = review.map(t => createCard(t)).join('');
-            document.getElementById('col-done').innerHTML = done.map(t => createCard(t)).join('');
-        }
-
-        function createCard(task) {
-            const priorityClass = task.priority.toLowerCase() === 'high' 
-                ? 'bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400' 
-                : 'bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400';
-            
-            // Assign random avatar color based on assignee name length
-            const colorIdx = task.assignee.length % colors.length;
-            
-            return `
-            <div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 hover:border-primary dark:hover:border-primary transition-all cursor-pointer group mb-3">
-                <div class="flex justify-between items-start mb-2">
-                    <span class="${priorityClass} text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">${task.priority} Priority</span>
-                    <button class="text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
-                        <span class="material-icons-round text-base">edit</span>
-                    </button>
-                </div>
-                <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug ${task.status === 'done' ? 'line-through text-gray-400' : ''}">${task.title}</h4>
-                <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-slate-700">
-                    <div class="flex items-center gap-2">
-                         <div class="w-6 h-6 rounded-full ${colors[colorIdx]} flex items-center justify-center text-white text-[10px] font-bold">
-                            ${task.assignee.charAt(0)}
-                        </div>
-                        <span class="text-xs text-gray-500 dark:text-gray-400">${task.assignee}</span>
+        const colorIdx = task.assignee.length % colors.length;
+        
+        return `
+        <div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer group">
+            <div class="flex justify-between items-start mb-2">
+                <span class="${priorityClass} text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">${task.priority} Priority</span>
+                <button class="text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400 opacity-0 group-hover:opacity-100 transition-opacity">
+                    <span class="material-icons-round text-base">edit</span>
+                </button>
+            </div>
+            <h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug ${task.status === 'done' ? 'line-through text-gray-400' : ''}">${task.title}</h4>
+            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-slate-700">
+                <div class="flex items-center gap-2">
+                     <div class="w-6 h-6 rounded-full ${colors[colorIdx]} flex items-center justify-center text-white text-[10px] font-bold">
+                        ${task.assignee.charAt(0)}
                     </div>
-                    <div class="flex items-center gap-1 text-gray-400">
-                        <span class="material-icons-round text-sm">sticky_note_2</span>
-                    </div>
+                    <span class="text-xs text-gray-500 dark:text-gray-400">${task.assignee}</span>
+                </div>
+                <div class="flex items-center gap-1 text-gray-400">
+                    <span class="material-icons-round text-sm">sticky_note_2</span>
                 </div>
             </div>
-            `;
-        }
+        </div>
+        `;
+    }
 
-        updateDashboard();
-        setInterval(updateDashboard, 5000);
+    updateDashboard();
+    setInterval(updateDashboard, 5000);
 
-    </script>
+</script>
 </body>
 </html>
