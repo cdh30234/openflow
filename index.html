@@ -1,0 +1,162 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>⚡ Hamad Operations Board</title>
+    <style>
+        :root {
+            --bg: #0f172a;
+            --card-bg: #1e293b;
+            --text: #e2e8f0;
+            --accent: #3b82f6;
+            --todo: #ef4444;
+            --doing: #eab308;
+            --done: #22c55e;
+        }
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background-color: var(--bg);
+            color: var(--text);
+            margin: 0;
+            padding: 20px;
+        }
+        header {
+            text-align: center;
+            margin-bottom: 30px;
+            border-bottom: 2px solid var(--card-bg);
+            padding-bottom: 20px;
+        }
+        h1 { margin: 0; font-size: 2.5rem; }
+        .subtitle { color: #94a3b8; margin-top: 5px; }
+        
+        .board {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 20px;
+            max-width: 1400px;
+            margin: 0 auto;
+        }
+        
+        .column {
+            background-color: #1e293b50;
+            border-radius: 12px;
+            padding: 15px;
+            border-top: 4px solid;
+        }
+        
+        .col-todo { border-color: var(--todo); }
+        .col-doing { border-color: var(--doing); }
+        .col-done { border-color: var(--done); }
+        
+        .col-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 20px;
+            font-weight: bold;
+            font-size: 1.2rem;
+        }
+        
+        .task-card {
+            background-color: var(--card-bg);
+            border-radius: 8px;
+            padding: 15px;
+            margin-bottom: 15px;
+            box-shadow: 0 4px 6px -1px rgba(0, 0, 0, 0.1);
+            transition: transform 0.2s;
+            border-left: 3px solid transparent;
+        }
+        
+        .task-card:hover { transform: translateY(-2px); }
+        
+        .task-meta {
+            display: flex;
+            justify-content: space-between;
+            font-size: 0.85rem;
+            color: #94a3b8;
+            margin-top: 10px;
+        }
+        
+        .tag {
+            background-color: #334155;
+            padding: 2px 8px;
+            border-radius: 4px;
+            font-size: 0.75rem;
+        }
+        
+        .assignee { display: flex; align-items: center; gap: 5px; }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>⚡ Hamad Ops Board</h1>
+    <div class="subtitle">Mission Control Center | Mohammed & Hamad</div>
+</header>
+
+<div class="board">
+    <!-- To Do Column -->
+    <div class="column col-todo">
+        <div class="col-header">
+            <span>📋 الانتظار (To Do)</span>
+            <span id="count-todo">2</span>
+        </div>
+        
+        <div class="task-card">
+            <div style="margin-bottom:8px">تحديد روتين المراجعة الأسبوعية</div>
+            <div class="task-meta">
+                <span class="tag">System</span>
+                <span class="assignee">👤 Mohammed</span>
+            </div>
+        </div>
+
+        <div class="task-card">
+            <div style="margin-bottom:8px">فحص اتصالات N8N</div>
+            <div class="task-meta">
+                <span class="tag">Tech</span>
+                <span class="assignee">🤖 Hamad</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Doing Column -->
+    <div class="column col-doing">
+        <div class="col-header">
+            <span>🚀 قيد التنفيذ (In Progress)</span>
+            <span id="count-doing">1</span>
+        </div>
+        
+        <div class="task-card" style="border-left-color: var(--doing)">
+            <div style="margin-bottom:8px"><strong>بناء لوحة المهام الخاصة (Dashboard)</strong></div>
+            <div class="task-meta">
+                <span class="tag">Dev</span>
+                <span class="assignee">🤖 Hamad</span>
+            </div>
+        </div>
+    </div>
+
+    <!-- Done Column -->
+    <div class="column col-done">
+        <div class="col-header">
+            <span>✅ مكتمل (Done)</span>
+            <span id="count-done">1</span>
+        </div>
+        
+        <div class="task-card" style="opacity: 0.7">
+            <div style="margin-bottom:8px"><s>تهيئة المشروع الأولي</s></div>
+            <div class="task-meta">
+                <span class="tag">Admin</span>
+                <span class="assignee">🤖 Hamad</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Simple script to update timestamp
+    console.log("Hamad Ops Board Loaded: " + new Date().toLocaleString());
+</script>
+
+</body>
+</html>
