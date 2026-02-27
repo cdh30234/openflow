@@ -1,206 +1,301 @@
 <!DOCTYPE html>
-<html lang="ar" dir="rtl">
+<html lang="en" class="dark">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Hamad Memory Bank</title>
+    <meta charset="utf-8"/>
+    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
+    <title>Memory Bank</title>
+    
+    <!-- Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    
+    <!-- Tailwind -->
+    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
+    <script>
+        tailwind.config = {
+            darkMode: "class",
+            theme: {
+                extend: {
+                    colors: {
+                        primary: "#3B82F6", // Consistent Blue
+                        secondary: "#10B981", // Green
+                        "background-light": "#F3F4F6", 
+                        "background-dark": "#111827", 
+                        "surface-light": "#FFFFFF",
+                        "surface-dark": "#1F2937", 
+                        "border-light": "#E5E7EB",
+                        "border-dark": "#374151",
+                        "text-main-light": "#1F2937",
+                        "text-main-dark": "#F9FAFB",
+                        "text-muted-light": "#6B7280",
+                        "text-muted-dark": "#9CA3AF",
+                    },
+                    fontFamily: {
+                        display: ["Inter", "sans-serif"],
+                        body: ["Inter", "sans-serif"],
+                    },
+                    borderRadius: {
+                        DEFAULT: "0.5rem",
+                        'xl': "0.75rem",
+                        '2xl': "1rem",
+                    },
+                    boxShadow: {
+                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
+                    }
+                },
+            },
+        };
+    </script>
+    
+    <!-- Appwrite & Marked -->
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
     <script src="https://cdn.jsdelivr.net/npm/marked/marked.min.js"></script>
+
     <style>
-        :root {
-            --bg: #0f172a;
-            --sidebar-bg: #1e293b;
-            --content-bg: #1e293b;
-            --text: #e2e8f0;
-            --text-muted: #94a3b8;
-            --accent: #8b5cf6; /* Violet for memory */
-            --border: #334155;
-        }
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            overflow: hidden;
-        }
+        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
+        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
+        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
+        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #4B5563; }
         
-        /* Sidebar */
-        .sidebar {
-            width: 300px;
-            background: var(--sidebar-bg);
-            border-left: 1px solid var(--border);
-            display: flex;
-            flex-direction: column;
-            padding: 20px;
-        }
-        .brand {
-            font-size: 1.5rem; font-weight: bold; margin-bottom: 20px;
-            color: var(--accent); display: flex; align-items: center; gap: 10px;
-        }
-        .search-box {
-            background: #0f172a;
-            border: 1px solid var(--border);
-            border-radius: 8px;
-            padding: 10px;
-            color: white;
-            width: 100%;
-            box-sizing: border-box;
-            margin-bottom: 20px;
-            font-family: inherit;
-        }
-        .search-box:focus { outline: none; border-color: var(--accent); }
+        body { font-family: 'Inter', sans-serif; }
         
-        .memory-list {
-            flex-grow: 1;
-            overflow-y: auto;
-            display: flex;
-            flex-direction: column;
-            gap: 10px;
-        }
-        .memory-item {
-            padding: 12px;
-            border-radius: 8px;
-            cursor: pointer;
-            transition: background 0.2s;
-            border: 1px solid transparent;
-        }
-        .memory-item:hover { background: rgba(255,255,255,0.05); }
-        .memory-item.active { background: rgba(139, 92, 246, 0.2); border-color: var(--accent); }
-        
-        .mem-title { font-weight: 600; font-size: 0.95rem; margin-bottom: 4px; }
-        .mem-meta { font-size: 0.75rem; color: var(--text-muted); display: flex; justify-content: space-between; }
-
-        /* Main Content */
-        .main-content {
-            flex-grow: 1;
-            padding: 40px;
-            overflow-y: auto;
-            max-width: 900px;
-            margin: 0 auto;
-        }
-        .document-viewer {
-            background: var(--content-bg);
-            padding: 40px;
-            border-radius: 12px;
-            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
-            line-height: 1.7;
-        }
-        
-        /* Markdown Styles */
-        .markdown-body h1 { border-bottom: 1px solid var(--border); padding-bottom: 10px; margin-bottom: 20px; font-size: 2em; color: var(--accent); }
-        .markdown-body h2 { margin-top: 30px; margin-bottom: 15px; font-size: 1.5em; color: #fff; }
-        .markdown-body ul { padding-right: 20px; }
-        .markdown-body li { margin-bottom: 5px; }
-        .markdown-body code { background: #0f172a; padding: 2px 6px; border-radius: 4px; font-family: monospace; color: #f472b6; }
-        .markdown-body pre { background: #0f172a; padding: 15px; border-radius: 8px; overflow-x: auto; }
-        .markdown-body blockquote { border-right: 4px solid var(--accent); margin: 0; padding-right: 15px; color: var(--text-muted); background: rgba(139, 92, 246, 0.1); padding: 10px; border-radius: 4px; }
-        
-        .loading { text-align: center; color: var(--text-muted); margin-top: 50px; }
-        .back-link { position: absolute; top: 20px; left: 20px; color: var(--text-muted); text-decoration: none; display: flex; align-items: center; gap: 5px; }
-        .back-link:hover { color: var(--text); }
-
-        ::-webkit-scrollbar { width: 8px; }
-        ::-webkit-scrollbar-track { background: var(--bg); }
-        ::-webkit-scrollbar-thumb { background: #334155; border-radius: 4px; }
-        ::-webkit-scrollbar-thumb:hover { background: #475569; }
-
+        /* Markdown Styles for Viewer */
+        .markdown-content h1 { font-size: 1.5em; font-weight: 700; margin-bottom: 0.5em; color: var(--tw-prose-headings); }
+        .markdown-content h2 { font-size: 1.25em; font-weight: 600; margin-top: 1em; margin-bottom: 0.5em; color: var(--tw-prose-headings); }
+        .markdown-content ul { list-style-type: disc; padding-left: 1.5em; margin-bottom: 1em; }
+        .markdown-content p { margin-bottom: 1em; line-height: 1.6; }
+        .markdown-content code { background-color: rgba(59, 130, 246, 0.1); padding: 0.2em 0.4em; border-radius: 0.25em; font-family: monospace; font-size: 0.9em; color: #3B82F6; }
+        .dark .markdown-content code { color: #60A5FA; }
+        .markdown-content pre { background-color: #1F2937; padding: 1em; border-radius: 0.5em; overflow-x: auto; margin-bottom: 1em; }
+        .dark .markdown-content pre { background-color: #111827; border: 1px solid #374151; }
     </style>
 </head>
-<body>
+<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-body antialiased h-screen overflow-hidden flex transition-colors duration-200">
 
-<a href="index.html" class="back-link"><i class="fas fa-arrow-left"></i> Dashboard</a>
-
-<div class="sidebar">
-    <div class="brand"><i class="fas fa-brain"></i> Memory Bank</div>
-    <input type="text" class="search-box" id="searchInput" placeholder="Search memories...">
-    <div class="memory-list" id="memoryList">
-        <div class="loading">Loading...</div>
-    </div>
-</div>
-
-<div class="main-content">
-    <div id="documentViewer" class="document-viewer markdown-body">
-        <div style="text-align:center; color:#94a3b8; margin-top:100px">
-            <i class="fas fa-book-open" style="font-size:3rem; margin-bottom:20px; opacity:0.5"></i>
-            <p>Select a memory to read</p>
-        </div>
-    </div>
-</div>
-
-<script>
-    const { Client, Databases, Query } = Appwrite;
-    const client = new Client();
-    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
-    const databases = new Databases(client);
-    
-    const DB_ID = 'hamad_ops';
-    const COLL_MEMORIES = 'memories';
-
-    let allMemories = [];
-
-    async function loadMemories() {
-        try {
-            const response = await databases.listDocuments(DB_ID, COLL_MEMORIES, [Query.limit(100), Query.orderDesc('$createdAt')]);
-            allMemories = response.documents;
-            renderList(allMemories);
-        } catch (error) {
-            console.error(error);
-            document.getElementById('memoryList').innerHTML = '<div style="color:red">Error loading memories</div>';
-        }
-    }
-
-    function renderList(memories) {
-        const list = document.getElementById('memoryList');
-        if (memories.length === 0) {
-            list.innerHTML = '<div style="text-align:center; opacity:0.5">No results found</div>';
-            return;
-        }
-
-        list.innerHTML = memories.map(mem => `
-            <div class="memory-item" onclick="viewMemory('${mem.$id}')" id="item-${mem.$id}">
-                <div class="mem-title">${mem.title}</div>
-                <div class="mem-meta">
-                    <span>${new Date(mem.$createdAt).toLocaleDateString()}</span>
-                    <span><i class="fas fa-file-alt"></i></span>
+    <!-- Sidebar -->
+    <aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex flex-col h-full flex-shrink-0 transition-colors duration-200 z-20 hidden md:flex">
+        <div class="p-6 border-b border-border-light dark:border-border-dark">
+            <div class="flex items-center space-x-3">
+                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold shadow-sm">M</div>
+                <div class="flex flex-col">
+                    <span class="text-sm font-semibold text-text-main-light dark:text-text-main-dark">Mohammed</span>
+                    <span class="text-xs text-text-muted-light dark:text-text-muted-dark truncate max-w-[120px]">Owner</span>
                 </div>
             </div>
-        `).join('');
-    }
+        </div>
 
-    function viewMemory(id) {
-        // Highlight active item
-        document.querySelectorAll('.memory-item').forEach(el => el.classList.remove('active'));
-        const activeItem = document.getElementById(`item-${id}`);
-        if(activeItem) activeItem.classList.add('active');
+        <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto custom-scrollbar">
+            <div class="px-4 pb-2 text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider">Main</div>
+            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="index.html">
+                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">grid_view</span>
+                <span class="font-medium">Dashboard</span>
+            </a>
+            
+            <div class="px-4 pb-2 pt-4 text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider">Workspace</div>
+            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="content.html">
+                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">campaign</span>
+                <span class="font-medium">Content Pipeline</span>
+            </a>
+            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="calendar.html">
+                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">calendar_today</span>
+                <span class="font-medium">Calendar</span>
+            </a>
+             <a class="flex items-center space-x-3 px-4 py-3 text-primary bg-blue-50 dark:bg-blue-900/20 rounded-xl transition-colors" href="memory.html">
+                <span class="material-icons-outlined text-xl">folder_open</span>
+                <span class="font-medium">Memory Bank</span>
+            </a>
 
-        const memory = allMemories.find(m => m.$id === id);
-        if (!memory) return;
+            <div class="px-4 pb-2 pt-4 text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider">Team</div>
+            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="team.html">
+                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">groups</span>
+                <span class="font-medium">Structure</span>
+            </a>
+            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="office.html">
+                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">apartment</span>
+                <span class="font-medium">Digital Office</span>
+            </a>
+        </nav>
 
-        // Render Markdown
-        const viewer = document.getElementById('documentViewer');
-        viewer.innerHTML = marked.parse(memory.content);
+        <div class="p-4 mt-auto">
+            <div class="bg-gradient-to-br from-blue-500 to-blue-700 rounded-2xl p-5 text-center text-white shadow-lg relative overflow-hidden">
+                <div class="absolute top-0 right-0 -mr-4 -mt-4 w-24 h-24 bg-white opacity-10 rounded-full blur-xl"></div>
+                <h4 class="text-lg font-bold mb-2 relative z-10">Pro Features</h4>
+                <p class="text-xs text-blue-100 mb-4 relative z-10 leading-relaxed">Advanced memory search enabled.</p>
+                <button class="w-full py-2 bg-white/20 hover:bg-white/30 backdrop-blur-sm rounded-lg text-sm font-medium transition-colors flex items-center justify-center relative z-10">
+                    <span class="material-icons-outlined text-base mr-2">auto_awesome</span> Upgrade
+                </button>
+            </div>
+        </div>
+    </aside>
+
+    <main class="flex-1 flex flex-col h-full min-w-0 bg-background-light dark:bg-background-dark overflow-hidden transition-colors duration-200">
         
-        // Scroll to top
-        document.querySelector('.main-content').scrollTop = 0;
-    }
+        <!-- Header -->
+        <header class="h-20 flex-shrink-0 bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark flex items-center justify-between px-8 z-10">
+            <div class="flex items-center flex-1">
+                <span class="material-icons-outlined text-text-muted-light dark:text-text-muted-dark text-xl mr-4 md:hidden cursor-pointer">menu</span>
+                <div class="relative w-full max-w-md hidden md:block">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-text-muted-light dark:text-text-muted-dark">
+                        <span class="material-icons-outlined text-lg">search</span>
+                    </span>
+                    <input id="searchInput" class="w-full py-2 pl-10 pr-4 bg-transparent border-none text-sm placeholder-text-muted-light dark:placeholder-text-muted-dark focus:ring-0 text-text-main-light dark:text-text-main-dark" placeholder="Search memories..." type="text"/>
+                </div>
+            </div>
+            <div class="flex items-center space-x-6">
+                <button class="relative p-2 text-text-muted-light dark:text-text-muted-dark hover:text-text-main-light dark:hover:text-text-main-dark transition-colors">
+                    <span class="material-icons-outlined">notifications</span>
+                    <span class="absolute top-2 right-2 w-2 h-2 bg-red-500 rounded-full border-2 border-surface-light dark:border-surface-dark"></span>
+                </button>
+                <div class="flex items-center space-x-3 pl-6 border-l border-border-light dark:border-border-dark">
+                    <div class="w-8 h-8 rounded-full bg-green-100 dark:bg-green-900 flex items-center justify-center text-green-600 dark:text-green-400">
+                        <span class="material-icons-outlined text-lg">apartment</span>
+                    </div>
+                    <div class="hidden md:block">
+                        <h4 class="text-sm font-semibold text-text-main-light dark:text-text-main-dark">Hamad Vault</h4>
+                        <p class="text-xs text-text-muted-light dark:text-text-muted-dark">Archives</p>
+                    </div>
+                    <span class="material-icons-outlined text-text-muted-light dark:text-text-muted-dark text-sm">expand_more</span>
+                </div>
+                <button class="p-2 rounded-full bg-background-light dark:bg-background-dark text-text-muted-light dark:text-text-muted-dark hover:text-primary transition-colors" onclick="document.documentElement.classList.toggle('dark')">
+                    <span class="material-icons-outlined dark:hidden">dark_mode</span>
+                    <span class="material-icons-outlined hidden dark:block">light_mode</span>
+                </button>
+            </div>
+        </header>
 
-    // Search functionality
-    document.getElementById('searchInput').addEventListener('input', (e) => {
-        const term = e.target.value.toLowerCase();
-        const filtered = allMemories.filter(m => 
-            m.title.toLowerCase().includes(term) || 
-            m.content.toLowerCase().includes(term)
-        );
-        renderList(filtered);
-    });
+        <!-- Memory Content -->
+        <div class="flex-1 overflow-y-auto p-8 custom-scrollbar">
+            
+            <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 space-y-4 md:space-y-0">
+                <div>
+                    <h1 class="text-2xl font-bold text-text-main-light dark:text-text-main-dark mb-1">Memory Bank</h1>
+                    <p class="text-sm text-text-muted-light dark:text-text-muted-dark">Browse and manage stored knowledge and logs.</p>
+                </div>
+                <div class="flex items-center space-x-3">
+                    <button class="flex items-center px-4 py-2 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm font-medium text-text-main-light dark:text-text-main-dark hover:bg-background-light dark:hover:bg-background-dark transition-colors shadow-sm">
+                        <span class="material-icons-outlined text-lg mr-2">filter_list</span> Filter
+                    </button>
+                    <button class="flex items-center px-4 py-2 bg-primary hover:bg-blue-600 text-white rounded-lg text-sm font-medium shadow-sm transition-colors">
+                        <span class="material-icons-outlined text-lg mr-2">add</span> New Memory
+                    </button>
+                </div>
+            </div>
 
-    // Init
-    loadMemories();
+            <!-- Categories -->
+            <div class="flex items-center space-x-6 border-b border-border-light dark:border-border-dark mb-8 overflow-x-auto custom-scrollbar pb-2">
+                <button class="pb-3 border-b-2 border-primary text-primary font-medium text-sm whitespace-nowrap">All Memories</button>
+                <button class="pb-3 border-b-2 border-transparent text-text-muted-light dark:text-text-muted-dark hover:text-text-main-light dark:hover:text-text-main-dark font-medium text-sm whitespace-nowrap transition-colors">Logs</button>
+                <button class="pb-3 border-b-2 border-transparent text-text-muted-light dark:text-text-muted-dark hover:text-text-main-light dark:hover:text-text-main-dark font-medium text-sm whitespace-nowrap transition-colors">Documents</button>
+                <button class="pb-3 border-b-2 border-transparent text-text-muted-light dark:text-text-muted-dark hover:text-text-main-light dark:hover:text-text-main-dark font-medium text-sm whitespace-nowrap transition-colors">Snippets</button>
+            </div>
 
-</script>
+            <!-- Content Area (Grid + Viewer) -->
+            <div class="grid grid-cols-1 lg:grid-cols-3 gap-8 h-[calc(100vh-280px)]">
+                
+                <!-- List -->
+                <div class="lg:col-span-1 overflow-y-auto custom-scrollbar pr-2 space-y-4" id="memoryList">
+                    <div class="text-center text-text-muted-light dark:text-text-muted-dark py-10">Loading memories...</div>
+                </div>
 
+                <!-- Viewer -->
+                <div class="lg:col-span-2 bg-surface-light dark:bg-surface-dark rounded-xl border border-border-light dark:border-border-dark p-8 overflow-y-auto custom-scrollbar shadow-sm relative">
+                    <div id="documentViewer" class="markdown-content text-text-main-light dark:text-text-main-dark">
+                        <div class="flex flex-col items-center justify-center h-full text-text-muted-light dark:text-text-muted-dark opacity-50">
+                            <span class="material-icons-outlined text-6xl mb-4">description</span>
+                            <p>Select a memory to view details</p>
+                        </div>
+                    </div>
+                </div>
+
+            </div>
+
+        </div>
+    </main>
+
+    <script>
+        const { Client, Databases, Query } = Appwrite;
+        const client = new Client();
+        client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
+        const databases = new Databases(client);
+        
+        const DB_ID = 'hamad_ops';
+        const COLL_MEMORIES = 'memories';
+
+        let allMemories = [];
+
+        async function loadMemories() {
+            try {
+                const response = await databases.listDocuments(DB_ID, COLL_MEMORIES, [Query.limit(100), Query.orderDesc('$createdAt')]);
+                allMemories = response.documents;
+                renderList(allMemories);
+            } catch (error) {
+                console.error(error);
+                document.getElementById('memoryList').innerHTML = '<div class="text-red-500 text-center">Error loading memories</div>';
+            }
+        }
+
+        function renderList(memories) {
+            const list = document.getElementById('memoryList');
+            if (memories.length === 0) {
+                list.innerHTML = '<div class="text-center opacity-50 py-10">No results found</div>';
+                return;
+            }
+
+            list.innerHTML = memories.map(mem => `
+                <div onclick="viewMemory('${mem.$id}')" id="item-${mem.$id}" class="group bg-surface-light dark:bg-surface-dark p-4 rounded-xl border border-border-light dark:border-border-dark hover:border-primary/50 dark:hover:border-primary/50 cursor-pointer transition-all shadow-sm hover:shadow-md">
+                    <div class="flex items-start justify-between mb-2">
+                        <div class="w-8 h-8 rounded-lg bg-blue-50 dark:bg-blue-900/30 flex items-center justify-center text-primary">
+                            <span class="material-icons-outlined text-sm">article</span>
+                        </div>
+                        <span class="text-xs text-text-muted-light dark:text-text-muted-dark">${new Date(mem.$createdAt).toLocaleDateString()}</span>
+                    </div>
+                    <h3 class="text-sm font-semibold text-text-main-light dark:text-text-main-dark mb-1 group-hover:text-primary transition-colors line-clamp-1">${mem.title}</h3>
+                    <p class="text-xs text-text-muted-light dark:text-text-muted-dark line-clamp-2">${mem.content.substring(0, 100)}...</p>
+                </div>
+            `).join('');
+        }
+
+        function viewMemory(id) {
+            // Highlight
+            document.querySelectorAll('[id^="item-"]').forEach(el => {
+                el.classList.remove('border-primary', 'dark:border-primary', 'ring-2', 'ring-primary/20');
+                el.classList.add('border-border-light', 'dark:border-border-dark');
+            });
+            const activeItem = document.getElementById(`item-${id}`);
+            if(activeItem) {
+                activeItem.classList.remove('border-border-light', 'dark:border-border-dark');
+                activeItem.classList.add('border-primary', 'dark:border-primary', 'ring-2', 'ring-primary/20');
+            }
+
+            const memory = allMemories.find(m => m.$id === id);
+            if (!memory) return;
+
+            const viewer = document.getElementById('documentViewer');
+            viewer.innerHTML = `
+                <div class="border-b border-border-light dark:border-border-dark pb-4 mb-6">
+                    <h1 class="text-2xl font-bold text-text-main-light dark:text-text-main-dark">${memory.title}</h1>
+                    <div class="flex items-center text-xs text-text-muted-light dark:text-text-muted-dark mt-2 space-x-4">
+                        <span class="flex items-center"><span class="material-icons-outlined text-sm mr-1">calendar_today</span> ${new Date(memory.$createdAt).toLocaleString()}</span>
+                        <span class="flex items-center"><span class="material-icons-outlined text-sm mr-1">folder</span> /memory</span>
+                    </div>
+                </div>
+                <div class="prose dark:prose-invert max-w-none">
+                    ${marked.parse(memory.content)}
+                </div>
+            `;
+        }
+
+        document.getElementById('searchInput').addEventListener('input', (e) => {
+            const term = e.target.value.toLowerCase();
+            const filtered = allMemories.filter(m => 
+                m.title.toLowerCase().includes(term) || 
+                m.content.toLowerCase().includes(term)
+            );
+            renderList(filtered);
+        });
+
+        loadMemories();
+    </script>
 </body>
 </html>
