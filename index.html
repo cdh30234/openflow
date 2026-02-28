@@ -4,7 +4,8 @@
 
 <meta charset="utf-8"/>
 <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title>Team Task Board</title>
+<title data-i18n="dashboard_title">OpenFlow Dashboard</title>
+<script src="translations.js"></script>
 <link href="https://fonts.googleapis.com" rel="preconnect"/>
 <link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
 <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
@@ -76,31 +77,31 @@
 <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
 <span class="material-icons-round text-lg">search</span>
 </span>
-<input class="w-full py-2 pl-10 pr-4 text-sm bg-gray-50 dark:bg-slate-700 border-none rounded-lg focus:ring-2 focus:ring-primary text-gray-700 dark:text-gray-200 placeholder-gray-400" placeholder="Search..." type="text"/>
+<input class="w-full py-2 pl-10 pr-4 text-sm bg-gray-50 dark:bg-slate-700 border-none rounded-lg focus:ring-2 focus:ring-primary text-gray-700 dark:text-gray-200 placeholder-gray-400" data-i18n-placeholder="search_tasks" placeholder="Search tasks..." type="text"/>
 </div>
 </div>
 <nav class="flex-1 overflow-y-auto px-4 space-y-1">
 <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="index.html">
 <span class="material-icons-round text-gray-400 group-hover:text-primary">grid_view</span>
-                    Home
+                    <span data-i18n="overview">Home</span>
                 </a>
 <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg shadow-sm" href="content.html">
 <span class="material-icons-round text-gray-800 dark:text-gray-200">campaign</span>
-                    Content Pipeline
+                    <span data-i18n="content_pipeline">Content Pipeline</span>
                 </a>
 <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="calendar.html">
 <span class="material-icons-round text-gray-400 group-hover:text-primary">calendar_today</span>
-                    Calendar
+                    <span data-i18n="calendar">Calendar</span>
                 </a>
 <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="memory.html">
 <span class="material-icons-round text-gray-400 group-hover:text-primary">folder_open</span>
-                    Memories
+                    <span data-i18n="memory_bank">Memories</span>
                 </a>
 <div class="pt-2">
 <a class="flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="#">
 <div class="flex items-center gap-3">
 <span class="material-icons-round text-gray-400 group-hover:text-primary">settings</span>
-                            Settings
+                            <span data-i18n="settings">Settings</span>
                         </div>
 <span class="material-icons-round text-lg">expand_less</span>
 </a>
@@ -111,21 +112,21 @@
 </div>
 <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors mt-2" href="team.html">
 <span class="material-icons-round text-gray-400 group-hover:text-primary">people</span>
-                    Team
+                    <span data-i18n="team">Team</span>
                 </a>
 <a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="office.html">
 <span class="material-icons-round text-gray-400 group-hover:text-primary">apartment</span>
-                    Digital Office
+                    <span data-i18n="digital_office">Digital Office</span>
                 </a>
 </nav>
 <div class="p-4 mt-auto">
 <div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 p-5 text-center text-white shadow-lg">
 <div class="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-white/10 blur-xl"></div>
 <div class="absolute -bottom-4 -left-4 h-20 w-20 rounded-full bg-white/10 blur-xl"></div>
-<h4 class="relative z-10 text-lg font-bold">Become Pro Access</h4>
-<p class="relative z-10 mt-1 text-xs text-blue-100 mb-4">Try your experience for using more features</p>
+<h4 class="relative z-10 text-lg font-bold" data-i18n="become_pro_access">Become Pro Access</h4>
+<p class="relative z-10 mt-1 text-xs text-blue-100 mb-4" data-i18n="try_more_features">Try your experience for using more features</p>
 <button class="relative z-10 w-full rounded-lg bg-white/20 hover:bg-white/30 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-all flex items-center justify-center gap-2">
-<span class="material-icons-round text-sm">auto_awesome</span> Upgrade Pro
+<span class="material-icons-round text-sm">auto_awesome</span> <span data-i18n="upgrade_pro">Upgrade Pro</span>
                     </button>
 </div>
 </div>
@@ -134,7 +135,7 @@
 <header class="flex items-center justify-between px-8 py-5 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700 z-10">
 <div class="flex items-center gap-4 w-1/3">
 <span class="material-icons-round text-gray-400 text-2xl">search</span>
-<input class="w-full bg-transparent border-none text-sm text-gray-700 dark:text-gray-200 focus:ring-0 placeholder-gray-400" placeholder="Search task, assignee, or tag..." type="text"/>
+<input class="w-full bg-transparent border-none text-sm text-gray-700 dark:text-gray-200 focus:ring-0 placeholder-gray-400" data-i18n-placeholder="search_tasks" placeholder="Search task, assignee, or tag..." type="text"/>
 </div>
 <div class="flex items-center gap-6">
 <button class="relative text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
@@ -149,6 +150,10 @@
 </div>
 <span class="material-icons-round text-gray-400">expand_more</span>
 </div>
+<div class="flex items-center gap-2">
+<button id="lang-switcher-en" class="px-3 py-1 text-sm font-medium rounded-lg transition-colors" :class="{'bg-gray-200 dark:bg-slate-700 text-gray-900 dark:text-white': currentLang === 'en', 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700': currentLang !== 'en'}">EN</button>
+<button id="lang-switcher-ar" class="px-3 py-1 text-sm font-medium rounded-lg transition-colors" :class="{'bg-gray-200 dark:bg-slate-700 text-gray-900 dark:text-white': currentLang === 'ar', 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700': currentLang !== 'ar'}">عربي</button>
+</div>
 <button class="p-2 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-300" onclick="document.documentElement.classList.toggle('dark')">
 <span class="material-icons-round dark:hidden">dark_mode</span>
 <span class="material-icons-round hidden dark:block">light_mode</span>
@@ -158,8 +163,8 @@
 <div class="flex-1 overflow-x-auto overflow-y-hidden bg-background-light dark:bg-background-dark p-8">
 <div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
 <div>
-<h1 class="text-2xl font-bold text-gray-900 dark:text-white">Q3 Product Launch</h1>
-<p class="text-sm text-gray-500 dark:text-gray-400 mt-1">Manage tasks for the upcoming release campaign.</p>
+<h1 class="text-2xl font-bold text-gray-900 dark:text-white" data-i18n="q3_product_launch">Q3 Product Launch</h1>
+<p class="text-sm text-gray-500 dark:text-gray-400 mt-1" data-i18n="manage_release_campaign">Manage tasks for the upcoming release campaign.</p>
 </div>
 <div class="flex items-center gap-3">
 <div class="flex -space-x-2 overflow-hidden">
@@ -170,16 +175,16 @@
 </div>
 <span class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2"></span>
 <button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-md transition-colors">
-<span class="material-icons-round text-sm">add</span> Add Task
+<span class="material-icons-round text-sm">add</span> <span data-i18n="add_task">Add Task</span>
                         </button>
 </div>
 </div>
 <div class="flex h-full gap-6 pb-4">
-<div class="w-80 flex-shrink-0 flex flex-col h-full">
+<div id="col-todo" class="w-80 flex-shrink-0 flex flex-col h-full">
 <div class="flex items-center justify-between mb-4 px-1">
 <div class="flex items-center gap-2">
 <span class="w-2 h-2 rounded-full bg-gray-400"></span>
-<h3 class="font-semibold text-gray-700 dark:text-gray-200">To Do</h3>
+<h3 class="font-semibold text-gray-700 dark:text-gray-200" data-i18n="todo_column">To Do</h3>
 <span class="bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium">4</span>
 </div>
 <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><span class="material-icons-round">more_horiz</span></button>
@@ -236,11 +241,11 @@
 <span class="text-sm font-medium">New Item</span>
 </button>
 </div>
-<div class="w-80 flex-shrink-0 flex flex-col h-full">
+<div id="col-inprogress" class="w-80 flex-shrink-0 flex flex-col h-full">
 <div class="flex items-center justify-between mb-4 px-1">
 <div class="flex items-center gap-2">
 <span class="w-2 h-2 rounded-full bg-blue-500"></span>
-<h3 class="font-semibold text-gray-700 dark:text-gray-200">In Progress</h3>
+<h3 class="font-semibold text-gray-700 dark:text-gray-200" data-i18n="inprogress_column">In Progress</h3>
 <span class="bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium">2</span>
 </div>
 <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><span class="material-icons-round">more_horiz</span></button>
@@ -280,11 +285,11 @@
 </div>
 </div>
 </div>
-<div class="w-80 flex-shrink-0 flex flex-col h-full">
+<div id="col-review" class="w-80 flex-shrink-0 flex flex-col h-full">
 <div class="flex items-center justify-between mb-4 px-1">
 <div class="flex items-center gap-2">
 <span class="w-2 h-2 rounded-full bg-yellow-400"></span>
-<h3 class="font-semibold text-gray-700 dark:text-gray-200">Review</h3>
+<h3 class="font-semibold text-gray-700 dark:text-gray-200" data-i18n="review_column">Review</h3>
 <span class="bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium">3</span>
 </div>
 <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><span class="material-icons-round">more_horiz</span></button>
@@ -318,11 +323,11 @@
 </div>
 </div>
 </div>
-<div class="w-80 flex-shrink-0 flex flex-col h-full">
+<div id="col-done" class="w-80 flex-shrink-0 flex flex-col h-full">
 <div class="flex items-center justify-between mb-4 px-1">
 <div class="flex items-center gap-2">
 <span class="w-2 h-2 rounded-full bg-green-500"></span>
-<h3 class="font-semibold text-gray-700 dark:text-gray-200">Done</h3>
+<h3 class="font-semibold text-gray-700 dark:text-gray-200" data-i18n="done_column">Done</h3>
 <span class="bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium">12</span>
 </div>
 <button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><span class="material-icons-round">more_horiz</span></button>
@@ -367,19 +372,12 @@
     const COLL_TASKS = 'tasks';
     const COLL_AGENTS = 'agents';
 
-    function getColumnContainer(titleText) {
-        // Find column by header title logic
-        // Structure: div.w-80 > div.flex > div.flex > h3
-        const headers = Array.from(document.querySelectorAll('h3'));
-        const header = headers.find(h => h.innerText.includes(titleText));
-        if (header) {
-            // Traverse up to column container, then find the scrollable list container
-            // h3 -> div -> div (header row) -> div (column wrapper)
-            // The scrollable div is the second child of column wrapper
-            const headerRow = header.closest('.flex.items-center.justify-between');
-            if(headerRow) {
-                return headerRow.nextElementSibling;
-            }
+    // Refactored to use IDs for column containers directly
+    function getColumnListContainer(columnId) {
+        const columnDiv = document.getElementById(columnId);
+        if (columnDiv) {
+            // The scrollable list container is the first child div after the header
+            return columnDiv.querySelector('.flex-1.overflow-y-auto');
         }
         return null;
     }
@@ -396,56 +394,52 @@
     }
 
     function renderTasks(tasks) {
-        const todoCol = getColumnContainer('To Do');
-        const doingCol = getColumnContainer('In Progress');
-        const doneCol = getColumnContainer('Done');
+        const todoCol = getColumnListContainer('col-todo');
+        const inprogressCol = getColumnListContainer('col-inprogress');
+        const reviewCol = getColumnListContainer('col-review'); // New review column
+        const doneCol = getColumnListContainer('col-done');
 
-        // Logic to preserve the "New Item" button in To Do column
-        const addButtonHTML = `<button class="mt-3 flex items-center justify-center gap-2 w-full py-2 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-gray-400 hover:text-primary hover:border-primary hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors"><span class="material-icons-round text-sm">add</span><span class="text-sm font-medium">New Item</span></button>`;
-
-        if(todoCol) {
-            const todoHTML = tasks.filter(t => t.status === 'todo').map(t => createCard(t)).join('');
-            todoCol.innerHTML = todoHTML + addButtonHTML; // Re-append button logic if needed or just handle dynamically
-            // Actually, in the template, button is AFTER the container div. Let's check structure.
-            // Template:
-            // <div class="w-80 ...">
-            //   <div class="flex items-center ..."> ... </div> (Header)
-            //   <div class="flex-1 overflow-y-auto ..."> ... </div> (List Container)
-            //   <button ...> ... </button> (Add Button)
-            // </div>
-            // So we only need to update the innerHTML of List Container. The button is separate.
-            // Ah wait, looking at raw file:
-            // The button IS inside the w-80 div, but AFTER the overflow-y-auto div.
-            // My getColumnContainer returns the overflow-y-auto div.
-            // So simply setting innerHTML is safe for the tasks list.
+        if (todoCol) {
             todoCol.innerHTML = tasks.filter(t => t.status === 'todo').map(t => createCard(t)).join('');
         }
-
-        if(doingCol) doingCol.innerHTML = tasks.filter(t => t.status === 'doing').map(t => createCard(t)).join('');
-        if(doneCol) doneCol.innerHTML = tasks.filter(t => t.status === 'done').map(t => createCard(t, true)).join('');
+        if (inprogressCol) {
+            inprogressCol.innerHTML = tasks.filter(t => t.status === 'doing').map(t => createCard(t)).join('');
+        }
+        if (reviewCol) { // Handle review column
+            reviewCol.innerHTML = tasks.filter(t => t.status === 'review').map(t => createCard(t)).join('');
+        }
+        if (doneCol) {
+            doneCol.innerHTML = tasks.filter(t => t.status === 'done').map(t => createCard(t, true)).join('');
+        }
         
-        // Update Counts
-        updateCount('To Do', tasks.filter(t => t.status === 'todo').length);
-        updateCount('In Progress', tasks.filter(t => t.status === 'doing').length);
-        updateCount('Done', tasks.filter(t => t.status === 'done').length);
+        // Update Counts based on IDs
+        updateCount('col-todo', tasks.filter(t => t.status === 'todo').length);
+        updateCount('col-inprogress', tasks.filter(t => t.status === 'doing').length);
+        updateCount('col-review', tasks.filter(t => t.status === 'review').length); // Update review count
+        updateCount('col-done', tasks.filter(t => t.status === 'done').length);
     }
 
-    function updateCount(title, count) {
-        const headers = Array.from(document.querySelectorAll('h3'));
-        const header = headers.find(h => h.innerText.includes(title));
-        if (header) {
-            // h3 -> parent div -> span with count
-            const countSpan = header.nextElementSibling;
+    function updateCount(columnId, count) {
+        const columnDiv = document.getElementById(columnId);
+        if (columnDiv) {
+            // Find the span that holds the count, it's a sibling of the h3 inside the header div
+            const countSpan = columnDiv.querySelector('h3').nextElementSibling;
             if(countSpan) countSpan.innerText = count;
         }
     }
 
     function createCard(task, isDone = false) {
         let priorityBadge = '';
-        if(task.priority === 'high') {
-            priorityBadge = `<div class="flex justify-between items-start mb-2"><span class="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">High Priority</span></div>`;
-        } else if (task.priority === 'medium') {
-             priorityBadge = `<div class="flex justify-between items-start mb-2"><span class="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Normal</span></div>`;
+        let priorityTextKey = ''; // Use translation key
+        if (task.priority === 'high') {
+            priorityTextKey = 'high';
+            priorityBadge = `<div class="flex justify-between items-start mb-2"><span class="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide" data-i18n="high">High Priority</span></div>`;
+        } else if (task.priority === 'normal') { // Assuming 'medium' becomes 'normal'
+            priorityTextKey = 'normal';
+            priorityBadge = `<div class="flex justify-between items-start mb-2"><span class="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide" data-i18n="normal">Normal</span></div>`;
+        } else if (task.priority === 'low') { // Adding low priority for completeness
+            priorityTextKey = 'low';
+            priorityBadge = `<div class="flex justify-between items-start mb-2"><span class="bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide" data-i18n="low">Low Priority</span></div>`;
         }
 
         const titleClass = isDone ? "text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug line-through text-gray-400 dark:text-gray-500" : "text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug";
@@ -457,7 +451,7 @@
         return `
         <div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer group mb-3">
             ${priorityBadge}
-            ${isDone ? '<div class="flex items-center gap-2 mb-2 text-green-600 dark:text-green-400 text-xs font-medium"><span class="material-icons-round text-sm">check_circle</span> Completed</div>' : ''}
+            ${isDone ? '<div class="flex items-center gap-2 mb-2 text-green-600 dark:text-green-400 text-xs font-medium" data-i18n="completed"><span class="material-icons-round text-sm">check_circle</span> Completed</div>' : ''}
             <h4 class="${titleClass}">${task.title}</h4>
             <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-slate-700">
                 <div class="flex items-center gap-2">
