@@ -258,6 +258,128 @@
                 transform: translateX(-50%) translateY(0);
             }
         }
+
+        .dispatch-log {
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-bottom: 25px;
+        }
+
+        .dispatch-log-header {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            margin-bottom: 12px;
+        }
+
+        .dispatch-log-title {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            font-weight: bold;
+            font-size: 0.95rem;
+            color: var(--text-light);
+        }
+
+        .dispatch-log-items {
+            display: flex;
+            flex-direction: column;
+            gap: 8px;
+            max-height: 200px;
+            overflow-y: auto;
+        }
+
+        .dispatch-item {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            padding: 10px 14px;
+            background: var(--bg-deep);
+            border-radius: var(--radius-md);
+            border-right: 3px solid var(--text-muted);
+        }
+
+        .dispatch-item.status-delivered {
+            border-right-color: var(--accent-orange);
+        }
+
+        .dispatch-item.status-picked_up {
+            border-right-color: var(--primary);
+        }
+
+        .dispatch-item.status-done {
+            border-right-color: var(--accent-green);
+        }
+
+        .dispatch-item.status-dispatched {
+            border-right-color: var(--text-muted);
+        }
+
+        .dispatch-status-icon {
+            font-size: 1.3rem;
+        }
+
+        .dispatch-status-text {
+            font-size: 0.8rem;
+            font-weight: bold;
+        }
+
+        .status-delivered .dispatch-status-icon {
+            color: var(--accent-orange);
+        }
+
+        .status-picked_up .dispatch-status-icon {
+            color: var(--primary);
+        }
+
+        .status-done .dispatch-status-icon {
+            color: var(--accent-green);
+        }
+
+        .status-dispatched .dispatch-status-icon {
+            color: var(--text-muted);
+        }
+
+        .bridge-status {
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            font-size: 0.75rem;
+        }
+
+        .bridge-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+        }
+
+        .bridge-online {
+            background: var(--accent-green);
+            box-shadow: 0 0 6px rgba(16, 185, 129, 0.5);
+        }
+
+        .bridge-offline {
+            background: var(--accent-orange);
+        }
+
+        .no-dispatches {
+            text-align: center;
+            padding: 20px;
+            color: var(--text-muted);
+            font-size: 0.85rem;
+        }
+
+        @keyframes spin {
+            from {
+                transform: rotate(0deg);
+            }
+
+            to {
+                transform: rotate(360deg);
+            }
+        }
     </style>
 </head>
 
@@ -350,6 +472,23 @@
                     متابعة الوكلاء المباشرة
                 </h3>
                 <div class="agents-tracker" id="agents-tracker"></div>
+
+                <!-- Dispatch Status Log -->
+                <div class="dispatch-log" id="dispatchLog">
+                    <div class="dispatch-log-header">
+                        <div class="dispatch-log-title">
+                            <span class="material-icons-round">receipt_long</span>
+                            سجل الإرسال
+                        </div>
+                        <div class="bridge-status" id="bridgeStatus">
+                            <span class="bridge-dot bridge-offline" id="bridgeDot"></span>
+                            <span id="bridgeLabel">جاري الفحص...</span>
+                        </div>
+                    </div>
+                    <div class="dispatch-log-items" id="dispatchLogItems">
+                        <div class="no-dispatches">لا توجد مهام مرسلة بعد</div>
+                    </div>
+                </div>
 
                 <!-- Kanban Board -->
                 <div class="kanban-board">
@@ -778,9 +917,106 @@
         // Close modal on outside click
         modal.addEventListener('click', (e) => { if (e.target === modal) closeTaskModal(); });
 
+        // ====== Dispatch Status Polling ======
+        let bridgeOnline = false;
+
+        const STATUS_LABELS = {
+            'dispatched': { icon: 'schedule', label: 'جاري الإرسال...', color: 'var(--text-muted)' },
+            'delivered': { icon: 'markunread_mailbox', label: 'تم الإيصال - في انتظار الوكيل', color: 'var(--accent-orange)' },
+            'picked_up': { icon: 'engineering', label: 'الوكيل استلم المهمة ويعمل عليها', color: 'var(--primary)' },
+            'working': { icon: 'pending', label: 'قيد التنفيذ', color: 'var(--primary)' },
+            'done': { icon: 'task_alt', label: 'مكتملة', color: 'var(--accent-green)' },
+            'error': { icon: 'error', label: 'خطأ', color: '#EF4444' }
+        };
+
+        async function pollDispatchStatus() {
+            try {
+                const res = await fetch(`${BRIDGE_URL}/status`, { signal: AbortSignal.timeout(3000) });
+                if (!res.ok) throw new Error('Bridge error');
+                const data = await res.json();
+                bridgeOnline = true;
+                updateBridgeIndicator(true);
+                renderDispatchLog(data.statuses);
+            } catch (e) {
+                bridgeOnline = false;
+                updateBridgeIndicator(false);
+                // Fallback: show dispatched tasks from Appwrite data
+                renderDispatchLogFromAppwrite();
+            }
+        }
+
+        function updateBridgeIndicator(online) {
+            const dot = document.getElementById('bridgeDot');
+            const label = document.getElementById('bridgeLabel');
+            if (online) {
+                dot.className = 'bridge-dot bridge-online';
+                label.innerText = 'Bridge API متصل';
+            } else {
+                dot.className = 'bridge-dot bridge-offline';
+                label.innerText = 'Bridge API غير متصل';
+            }
+        }
+
+        function renderDispatchLog(statuses) {
+            const container = document.getElementById('dispatchLogItems');
+            const entries = Object.entries(statuses);
+            if (entries.length === 0) {
+                container.innerHTML = '<div class="no-dispatches">لا توجد مهام مرسلة بعد</div>';
+                return;
+            }
+            container.innerHTML = entries.sort((a, b) => new Date(b[1].updatedAt) - new Date(a[1].updatedAt)).map(([taskId, info]) => {
+                const s = STATUS_LABELS[info.status] || STATUS_LABELS['dispatched'];
+                const agentName = allAgents.find(a => a.$id === info.agentId)?.name || info.agentId;
+                const taskTitle = currentTasks.find(t => t.taskId === taskId)?.title || taskId;
+                const time = new Date(info.updatedAt).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' });
+                return `
+                <div class="dispatch-item status-${info.status}">
+                    <span class="material-icons-round dispatch-status-icon">${s.icon}</span>
+                    <div style="flex:1;min-width:0;">
+                        <div class="font-bold text-sm" style="color:var(--text-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${taskTitle}</div>
+                        <div class="text-xs text-muted">→ ${agentName}</div>
+                    </div>
+                    <div style="text-align:left;min-width:fit-content;">
+                        <div class="dispatch-status-text" style="color:${s.color}">${s.label}</div>
+                        <div class="text-xs text-muted" style="text-align:left;">${time}</div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
+        function renderDispatchLogFromAppwrite() {
+            const dispatched = currentTasks.filter(t => t.dispatchedTo);
+            const container = document.getElementById('dispatchLogItems');
+            if (dispatched.length === 0) {
+                container.innerHTML = '<div class="no-dispatches">لا توجد مهام مرسلة بعد</div>';
+                return;
+            }
+            container.innerHTML = dispatched.map(t => {
+                const agentName = allAgents.find(a => a.$id === t.dispatchedTo)?.name || t.dispatchedTo;
+                const statusInfo = t.status === 'done' ? STATUS_LABELS['done'] : STATUS_LABELS['delivered'];
+                const time = t.dispatchedAt ? new Date(t.dispatchedAt).toLocaleTimeString('ar-SA', { hour: '2-digit', minute: '2-digit' }) : '---';
+                return `
+                <div class="dispatch-item status-${t.status === 'done' ? 'done' : 'delivered'}">
+                    <span class="material-icons-round dispatch-status-icon">${statusInfo.icon}</span>
+                    <div style="flex:1;min-width:0;">
+                        <div class="font-bold text-sm" style="color:var(--text-light);overflow:hidden;text-overflow:ellipsis;white-space:nowrap;">${t.title}</div>
+                        <div class="text-xs text-muted">→ ${agentName}</div>
+                    </div>
+                    <div style="text-align:left;min-width:fit-content;">
+                        <div class="dispatch-status-text" style="color:${statusInfo.color}">${statusInfo.label}</div>
+                        <div class="text-xs text-muted" style="text-align:left;">${time}</div>
+                    </div>
+                </div>
+            `;
+            }).join('');
+        }
+
         // Init
         updateDashboard();
+        pollDispatchStatus();
         setInterval(updateDashboard, 5000);
+        setInterval(pollDispatchStatus, 5000);
     </script>
 
 </body>
