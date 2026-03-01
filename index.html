@@ -1,269 +1,596 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title data-i18n="dashboard_title">لوحة تحكم OpenFlow</title>
-    
+
     <!-- Design System & Fonts -->
     <link rel="stylesheet" href="index.css">
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
     <script src="translations.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+    <style>
+        /* Extra Dashboard Elements */
+        .agents-tracker {
+            display: flex;
+            gap: 15px;
+            margin-bottom: 25px;
+            overflow-x: auto;
+            padding-bottom: 10px;
+        }
+
+        .agent-pill {
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            padding: 10px 15px;
+            border-radius: var(--radius-lg);
+            display: flex;
+            align-items: center;
+            gap: 12px;
+            min-width: max-content;
+        }
+
+        .agent-status-indicator {
+            width: 10px;
+            height: 10px;
+            border-radius: 50%;
+        }
+
+        .agent-working {
+            background: var(--accent-green);
+            box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+        }
+
+        .agent-idle {
+            background: var(--text-muted);
+        }
+
+        .progress-bar-container {
+            width: 100%;
+            height: 6px;
+            background: var(--bg-deep);
+            border-radius: 3px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+
+        .progress-bar {
+            height: 100%;
+            background: var(--primary);
+            width: 0%;
+            transition: width 0.3s ease;
+        }
+
+        /* Modal specific */
+        .modal-overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            bottom: 0;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 1000;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: var(--card-bg);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-xl);
+            padding: 30px;
+            width: 100%;
+            max-width: 500px;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+
+        .form-group {
+            margin-bottom: 20px;
+        }
+
+        .form-group label {
+            display: block;
+            margin-bottom: 8px;
+            color: var(--text-muted);
+            font-size: 0.9rem;
+        }
+
+        .form-control {
+            width: 100%;
+            padding: 12px;
+            border-radius: var(--radius-md);
+            background: var(--bg-deep);
+            border: 1px solid var(--border-subtle);
+            color: var(--text-light);
+            font-family: inherit;
+        }
+
+        .form-control:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
+
+        textarea.form-control {
+            min-height: 100px;
+            resize: vertical;
+        }
+    </style>
 </head>
+
 <body>
 
-<div class="app-container">
-    
-    <!-- Sidebar Navigation -->
-    <aside class="sidebar">
-        <div class="sidebar-header">
-            <a href="index.html" class="brand">
-                <div class="brand-icon">
-                    <span class="material-icons-round">bolt</span>
-                </div>
-                <span class="brand-text">OpenFlow</span>
-            </a>
-        </div>
-        
-        <nav class="sidebar-nav">
-            <div class="nav-label" data-i18n="main_menu">القائمة الرئيسية</div>
-            <a href="index.html" class="nav-item active">
-                <span class="material-icons-round nav-icon">grid_view</span>
-                <span data-i18n="overview">الرئيسية</span>
-            </a>
-            <a href="content.html" class="nav-item">
-                <span class="material-icons-round nav-icon">campaign</span>
-                <span data-i18n="content_pipeline">دورة المحتوى</span>
-            </a>
-            <a href="calendar.html" class="nav-item">
-                <span class="material-icons-round nav-icon">calendar_today</span>
-                <span data-i18n="calendar">التقويم</span>
-            </a>
-            <a href="memory.html" class="nav-item">
-                <span class="material-icons-round nav-icon">folder_open</span>
-                <span data-i18n="memory_bank">بنك الذاكرة</span>
-            </a>
-            
-            <div class="nav-label mt-4" data-i18n="team_office">الفريق والمكتب</div>
-            <a href="team.html" class="nav-item">
-                <span class="material-icons-round nav-icon">people</span>
-                <span data-i18n="team">الفريق</span>
-            </a>
-            <a href="office.html" class="nav-item">
-                <span class="material-icons-round nav-icon">apartment</span>
-                <span data-i18n="digital_office">المكتب الرقمي</span>
-            </a>
-        </nav>
-        
-        <div class="sidebar-footer">
-            <div class="user-widget">
-                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuClJbufReK6q7IYBEZs_M2xG3rdyvnAvZFqMHC5q0VV5H7gEkUtSzc0W_XjdxwGyUyA6VCIpFj7DQAIG4K3D0tynbWdi36V4s7kmUL3ZP1IIamtXqhliFx_eWJtbtGoQE0XJJGVJ7bb2OEzqdlkWb1OM5U3eJI22vsKlXy4KT6E-PvAjC_2R1av5rYL1zalxvU63UH0QNfOXjR1bPT25VYyRW4lj3q5S9ei7ubtlxRonQhINQb5zG7UUsjslH7GPyoJ8_VBLw1UYCQ" alt="User Profile" class="user-avatar">
-                <div class="user-info">
-                    <span class="user-name">حمد العتيبي</span>
-                    <span class="user-role">المدير التنفيذي</span>
-                </div>
-            </div>
-            
-            <div class="mt-4 p-4 rounded-xl" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1)); border: 1px solid var(--border-subtle);">
-                <div class="flex items-center gap-2 mb-2 text-primary font-bold">
-                    <span class="material-icons-round text-lg">workspace_premium</span>
-                    <span data-i18n="become_pro_access">ترقية للنسخة الاحترافية</span>
-                </div>
-                <p class="text-xs text-muted mb-3" data-i18n="try_more_features">افتح جميع الميزات المتقدمة لإدارة فريق الذكاء الاصطناعي</p>
-                <button class="btn btn-primary w-full py-2 text-sm">ترقية الآن</button>
-            </div>
-        </div>
-    </aside>
+    <div class="app-container">
 
-    <!-- Main Content -->
-    <main class="main-wrapper">
-        <!-- Top Navigation Bar -->
-        <header class="topbar">
-            <div class="search-container">
-                <span class="material-icons-round search-icon">search</span>
-                <input type="text" class="search-input" placeholder="ابحث عن المهام أو الوكلاء..." data-i18n-placeholder="search_tasks">
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="brand">
+                    <div class="brand-icon">
+                        <span class="material-icons-round">bolt</span>
+                    </div>
+                    <span class="brand-text">OpenFlow</span>
+                </a>
             </div>
-            
-            <div class="topbar-actions">
-                <div class="lang-switcher">
-                    <button id="lang-switcher-en" class="lang-btn" onclick="setLanguage('en')">EN</button>
-                    <button id="lang-switcher-ar" class="lang-btn active" onclick="setLanguage('ar')">عربي</button>
+
+            <nav class="sidebar-nav">
+                <div class="nav-label" data-i18n="main_menu">القائمة الرئيسية</div>
+                <a href="index.html" class="nav-item active">
+                    <span class="material-icons-round nav-icon">grid_view</span>
+                    <span data-i18n="overview">الرئيسية</span>
+                </a>
+                <a href="content.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">campaign</span>
+                    <span data-i18n="content_pipeline">دورة المحتوى</span>
+                </a>
+                <a href="calendar.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">calendar_today</span>
+                    <span data-i18n="calendar">التقويم</span>
+                </a>
+                <a href="memory.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">folder_open</span>
+                    <span data-i18n="memory_bank">بنك الذاكرة</span>
+                </a>
+
+                <div class="nav-label mt-4" data-i18n="team_office">الفريق والمكتب</div>
+                <a href="team.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">people</span>
+                    <span data-i18n="team">الفريق</span>
+                </a>
+                <a href="office.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">apartment</span>
+                    <span data-i18n="digital_office">المكتب الرقمي</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-widget">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuClJbufReK6q7IYBEZs_M2xG3rdyvnAvZFqMHC5q0VV5H7gEkUtSzc0W_XjdxwGyUyA6VCIpFj7DQAIG4K3D0tynbWdi36V4s7kmUL3ZP1IIamtXqhliFx_eWJtbtGoQE0XJJGVJ7bb2OEzqdlkWb1OM5U3eJI22vsKlXy4KT6E-PvAjC_2R1av5rYL1zalxvU63UH0QNfOXjR1bPT25VYyRW4lj3q5S9ei7ubtlxRonQhINQb5zG7UUsjslH7GPyoJ8_VBLw1UYCQ"
+                        alt="User Profile" class="user-avatar">
+                    <div class="user-info">
+                        <span class="user-name">حمد العتيبي</span>
+                        <span class="user-role">المدير التنفيذي</span>
+                    </div>
                 </div>
-                <button class="action-btn">
-                    <span class="material-icons-round">notifications</span>
-                    <span class="badge">3</span>
+            </div>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-wrapper">
+            <!-- Top Navigation Bar -->
+            <header class="topbar">
+                <div class="search-container">
+                    <span class="material-icons-round search-icon">search</span>
+                    <input type="text" class="search-input" placeholder="ابحث عن المهام أو الوكلاء..."
+                        data-i18n-placeholder="search_tasks">
+                </div>
+
+                <div class="topbar-actions">
+                    <div class="lang-switcher">
+                        <button id="lang-switcher-en" class="lang-btn" onclick="setLanguage('en')">EN</button>
+                        <button id="lang-switcher-ar" class="lang-btn active" onclick="setLanguage('ar')">عربي</button>
+                    </div>
+                    <button class="btn btn-primary" onclick="openTaskModal()">
+                        <span class="material-icons-round text-sm">add</span>
+                        <span>مهمة جديدة</span>
+                    </button>
+                </div>
+            </header>
+
+            <!-- Dynamic Content Area -->
+            <div class="page-content">
+                <div class="page-header">
+                    <div>
+                        <h1 class="page-title">إدارة مركز العمليات</h1>
+                        <p class="page-subtitle">تتبع المهام وحالة الوكلاء في الوقت الفعلي.</p>
+                    </div>
+                </div>
+
+                <!-- Real-time Agents Tracker -->
+                <h3 class="text-sm text-muted mb-3 font-bold px-2">متابعة الوكلاء المباشرة</h3>
+                <div class="agents-tracker" id="agents-tracker">
+                    <!-- Data injected via JS -->
+                </div>
+
+                <!-- Kanban Board -->
+                <div class="kanban-board">
+                    <div class="kanban-col" id="col-todo">
+                        <div class="kanban-col-header">
+                            <h3 class="kanban-col-title">
+                                <span class="col-indicator" style="background: var(--text-muted)"></span>
+                                <span data-i18n="todo_column">للتنفيذ</span>
+                            </h3>
+                            <span class="tag tag-blue">0</span>
+                        </div>
+                        <div class="kanban-cards flex-1 overflow-y-auto" id="todo-list"></div>
+                    </div>
+
+                    <div class="kanban-col" id="col-inprogress">
+                        <div class="kanban-col-header">
+                            <h3 class="kanban-col-title">
+                                <span class="col-indicator" style="background: var(--primary)"></span>
+                                <span data-i18n="inprogress_column">قيد العمل</span>
+                            </h3>
+                            <span class="tag tag-blue">0</span>
+                        </div>
+                        <div class="kanban-cards flex-1 overflow-y-auto" id="inprogress-list"></div>
+                    </div>
+
+                    <div class="kanban-col" id="col-review">
+                        <div class="kanban-col-header">
+                            <h3 class="kanban-col-title">
+                                <span class="col-indicator" style="background: var(--accent-orange)"></span>
+                                <span data-i18n="review_column">للمراجعة</span>
+                            </h3>
+                            <span class="tag tag-blue">0</span>
+                        </div>
+                        <div class="kanban-cards flex-1 overflow-y-auto" id="review-list"></div>
+                    </div>
+
+                    <div class="kanban-col" id="col-done">
+                        <div class="kanban-col-header">
+                            <h3 class="kanban-col-title">
+                                <span class="col-indicator" style="background: var(--accent-green)"></span>
+                                <span data-i18n="done_column">منجزة</span>
+                            </h3>
+                            <span class="tag tag-blue">0</span>
+                        </div>
+                        <div class="kanban-cards flex-1 overflow-y-auto" id="done-list"></div>
+                    </div>
+                </div>
+            </div>
+        </main>
+    </div>
+
+    <!-- Task Modal -->
+    <div class="modal-overlay" id="taskModal">
+        <div class="modal-content">
+            <div class="flex justify-between items-center mb-6">
+                <h2 class="text-xl font-bold" id="modalTitle">مهمة جديدة</h2>
+                <button class="action-btn" onclick="closeTaskModal()">
+                    <span class="material-icons-round">close</span>
                 </button>
-                <button class="btn btn-primary">
-                    <span class="material-icons-round text-sm">add</span>
-                    <span data-i18n="add_task">مهمة جديدة</span>
-                </button>
-            </div>
-        </header>
-
-        <!-- Dynamic Content Area -->
-        <div class="page-content">
-            <div class="page-header">
-                <div>
-                    <h1 class="page-title" data-i18n="q3_product_launch">إطلاق منتجات الربع الثالث</h1>
-                    <p class="page-subtitle" data-i18n="manage_release_campaign">إدارة مهام حملات الإطلاق القادمة ومتابعة سير العمل.</p>
-                </div>
-                
-                <div class="flex items-center gap-4">
-                    <div class="avatar-group">
-                        <img class="user-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCylggicGDTjyjyoAUnSE8qEqdLNLyED0WzgvHiFLvZhmOwFwY6da7xRQaIhUvHjXpjM6rQtWPkDBhxL59TGAcLnW1Kfg9y7yKNMPeUoPWlLv53qYZZtmxrzYbRBDZqBBzPxKdSi8_zFmIHENswXgDjzTGWT-d5E3wd07FNIZPVmw-xi1wL_wsH8HOdxgQcz8cF3VXDGbU3HlZ7oMNOIfY4stwIsCnkjcGWaS0KqLj8XZHfB2Tr3fmCPhqaom3sUMZ_Jkdj1TIdBs0">
-                        <img class="user-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-9sOwWQwLkonfD-mAE_d5V7jNzKUab6IcXYjukVVxQFDmLCqmr5j4gLAC8DQZthCp4CPoOzknalEqVJbqOBQ3iQgtPtvERD00swJQwHPNy6W2C-6ExGe_9p44fC42o6yIpRJG8cSDjwd_M0R4B-e7YshzpTpueMTFpeqCd8kHf34qR300mKVpKxWfcgnYpRSdqgvnv6oFWVF9GMUcYp-k10mk5xbp2MSwzfX9c9SM3COWB_nCnSwI-kmr-KJW0YXzWQMJ4WFCisg">
-                        <div class="avatar-more">+4</div>
-                    </div>
-                </div>
             </div>
 
-            <!-- Kanban Board -->
-            <div class="kanban-board">
-                <!-- To Do Column -->
-                <div class="kanban-col" id="col-todo">
-                    <div class="kanban-col-header">
-                        <h3 class="kanban-col-title">
-                            <span class="col-indicator" style="background: var(--text-muted)"></span>
-                            <span data-i18n="todo_column">للتنفيذ</span>
-                        </h3>
-                        <span class="tag tag-blue">0</span>
+            <form id="taskForm" onsubmit="saveTask(event)">
+                <input type="hidden" id="taskId">
+
+                <div class="form-group">
+                    <label>عنوان المهمة</label>
+                    <input type="text" class="form-control" id="taskTitle" required>
+                </div>
+
+                <div class="form-group">
+                    <label>الوصف</label>
+                    <textarea class="form-control" id="taskDescription"></textarea>
+                </div>
+
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="form-group mb-0">
+                        <label>الحالة</label>
+                        <select class="form-control" id="taskStatus">
+                            <option value="todo">للتنفيذ</option>
+                            <option value="doing">قيد العمل</option>
+                            <option value="review">للمراجعة</option>
+                            <option value="done">مكتمل</option>
+                            <option value="suspended">معلق</option>
+                        </select>
                     </div>
-                    <div class="kanban-cards flex-1 overflow-y-auto" id="todo-list">
-                        <!-- Tasks dynamically injected here -->
+                    <div class="form-group mb-0">
+                        <label>الأولوية</label>
+                        <select class="form-control" id="taskPriority">
+                            <option value="low">منخفضة</option>
+                            <option value="normal">عادية</option>
+                            <option value="high">عالية</option>
+                        </select>
                     </div>
                 </div>
 
-                <!-- In Progress Column -->
-                <div class="kanban-col" id="col-inprogress">
-                    <div class="kanban-col-header">
-                        <h3 class="kanban-col-title">
-                            <span class="col-indicator" style="background: var(--primary)"></span>
-                            <span data-i18n="inprogress_column">قيد العمل</span>
-                        </h3>
-                        <span class="tag tag-blue">0</span>
+                <div class="grid grid-cols-2 gap-4 mb-4">
+                    <div class="form-group mb-0">
+                        <label>الوكيل المعين</label>
+                        <input type="text" class="form-control" id="taskAssignee" placeholder="مثال: Agent One">
                     </div>
-                    <div class="kanban-cards flex-1 overflow-y-auto" id="inprogress-list">
-                        <!-- Tasks dynamically injected here -->
+                    <div class="form-group mb-0">
+                        <label>نسبة الإنجاز (%)</label>
+                        <input type="number" class="form-control" id="taskProgress" min="0" max="100" value="0">
                     </div>
                 </div>
 
-                <!-- Review Column -->
-                <div class="kanban-col" id="col-review">
-                    <div class="kanban-col-header">
-                        <h3 class="kanban-col-title">
-                            <span class="col-indicator" style="background: var(--accent-orange)"></span>
-                            <span data-i18n="review_column">للمراجعة</span>
-                        </h3>
-                        <span class="tag tag-blue">0</span>
-                    </div>
-                    <div class="kanban-cards flex-1 overflow-y-auto" id="review-list">
-                        <!-- Tasks dynamically injected here -->
+                <div class="flex justify-between mt-6">
+                    <button type="button" class="btn btn-secondary text-accent-orange" id="deleteTaskBtn"
+                        style="display:none;" onclick="deleteTask()">حذف المهمة</button>
+                    <div class="flex gap-2 mr-auto">
+                        <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">إلغاء</button>
+                        <button type="submit" class="btn btn-primary" id="saveTaskBtn">حفظ المهة</button>
                     </div>
                 </div>
-
-                <!-- Done Column -->
-                <div class="kanban-col" id="col-done">
-                    <div class="kanban-col-header">
-                        <h3 class="kanban-col-title">
-                            <span class="col-indicator" style="background: var(--accent-green)"></span>
-                            <span data-i18n="done_column">منجزة</span>
-                        </h3>
-                        <span class="tag tag-blue">0</span>
-                    </div>
-                    <div class="kanban-cards flex-1 overflow-y-auto" id="done-list">
-                        <!-- Tasks dynamically injected here -->
-                    </div>
-                </div>
-            </div>
+            </form>
         </div>
-    </main>
-</div>
+    </div>
 
-<!-- Scripts -->
-<script>
-    const { Client, Databases, Query } = Appwrite;
-    const client = new Client();
-    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
-    const databases = new Databases(client);
-    
-    const DB_ID = 'hamad_ops';
-    const COLL_TASKS = 'tasks';
+    <!-- Scripts -->
+    <script>
+        const { Client, Databases, Query, ID } = Appwrite;
+        const client = new Client();
+        client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
+        const databases = new Databases(client);
 
-    function getColumnListContainer(columnId) {
-        return document.getElementById(columnId + '-list');
-    }
+        const DB_ID = 'hamad_ops';
+        const COLL_TASKS = 'tasks';
+        const COLL_AGENTS = 'agents';
 
-    async function updateDashboard() {
-        try {
-            const tasksRes = await databases.listDocuments(DB_ID, COLL_TASKS, [Query.limit(100)]);
-            renderTasks(tasksRes.documents);
-        } catch (error) { 
-            console.error('Appwrite connection error:', error); 
-        }
-    }
+        let currentTasks = [];
 
-    function renderTasks(tasks) {
-        const todoCol = getColumnListContainer('todo');
-        const inprogressCol = getColumnListContainer('inprogress');
-        const reviewCol = getColumnListContainer('review');
-        const doneCol = getColumnListContainer('done');
+        async function updateDashboard() {
+            try {
+                const [tasksRes, agentsRes] = await Promise.all([
+                    databases.listDocuments(DB_ID, COLL_TASKS, [Query.limit(100)]),
+                    databases.listDocuments(DB_ID, COLL_AGENTS, [Query.limit(50)])
+                ]);
 
-        if (todoCol) todoCol.innerHTML = tasks.filter(t => t.status === 'todo').map(t => createCard(t)).join('');
-        if (inprogressCol) inprogressCol.innerHTML = tasks.filter(t => t.status === 'doing').map(t => createCard(t)).join('');
-        if (reviewCol) reviewCol.innerHTML = tasks.filter(t => t.status === 'review').map(t => createCard(t)).join('');
-        if (doneCol) doneCol.innerHTML = tasks.filter(t => t.status === 'done').map(t => createCard(t, true)).join('');
-        
-        updateCount('col-todo', tasks.filter(t => t.status === 'todo').length);
-        updateCount('col-inprogress', tasks.filter(t => t.status === 'doing').length);
-        updateCount('col-review', tasks.filter(t => t.status === 'review').length);
-        updateCount('col-done', tasks.filter(t => t.status === 'done').length);
-    }
-
-    function updateCount(columnId, count) {
-        const columnDiv = document.getElementById(columnId);
-        if (columnDiv) {
-            const tag = columnDiv.querySelector('.tag');
-            if(tag) tag.innerText = count;
-        }
-    }
-
-    function createCard(task, isDone = false) {
-        let tagClass = 'tag-blue';
-        let priorityLabel = 'عادي';
-        
-        if (task.priority === 'high') {
-            tagClass = 'tag-orange';
-            priorityLabel = 'عالي الأهمية';
-        } else if (task.priority === 'low') {
-            tagClass = 'tag-purple';
-            priorityLabel = 'منخفض';
+                currentTasks = tasksRes.documents;
+                renderTasks(currentTasks);
+                renderAgentsTracker(agentsRes.documents, currentTasks);
+            } catch (error) {
+                console.error('Appwrite connection error:', error);
+            }
         }
 
-        const titleStyle = isDone ? "text-decoration: line-through; opacity: 0.6;" : "";
-        
-        return `
-        <div class="task-card animate-fade-in">
+        function renderAgentsTracker(agents, tasks) {
+            const tracker = document.getElementById('agents-tracker');
+            if (!tracker) return;
+
+            let html = '';
+            agents.forEach(agent => {
+                const isWorking = agent.status === 'active';
+                const indicatorClass = isWorking ? 'agent-working' : 'agent-idle';
+
+                // Find what they are working on
+                const activeTasks = tasks.filter(t => t.assignee === agent.name && t.status === 'doing');
+                let currentTaskName = "في وضع الاستعداد";
+                let progress = 0;
+
+                if (activeTasks.length > 0) {
+                    currentTaskName = activeTasks[0].title;
+                    progress = activeTasks[0].progress || 0;
+                } else if (agent.currentTask) {
+                    currentTaskName = agent.currentTask;
+                }
+
+                html += `
+                <div class="agent-pill">
+                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">
+                        ${agent.name.charAt(0)}
+                    </div>
+                    <div>
+                        <div class="flex items-center gap-2 mb-1">
+                            <span class="font-bold text-sm text-text-light">${agent.name}</span>
+                            <span class="agent-status-indicator ${indicatorClass}"></span>
+                        </div>
+                        <div class="text-xs text-muted max-w-[150px] truncate" title="${currentTaskName}">${currentTaskName}</div>
+                        ${isWorking && activeTasks.length > 0 ? `
+                            <div class="progress-bar-container">
+                                <div class="progress-bar" style="width: ${progress}%"></div>
+                            </div>
+                        ` : ''}
+                    </div>
+                </div>
+            `;
+            });
+            tracker.innerHTML = html;
+        }
+
+        function renderTasks(tasks) {
+            const todoCol = document.getElementById('todo-list');
+            const inprogressCol = document.getElementById('inprogress-list');
+            const reviewCol = document.getElementById('review-list');
+            const doneCol = document.getElementById('done-list');
+
+            if (todoCol) todoCol.innerHTML = tasks.filter(t => t.status === 'todo').map(t => createCard(t)).join('');
+            if (inprogressCol) inprogressCol.innerHTML = tasks.filter(t => t.status === 'doing').map(t => createCard(t)).join('');
+            if (reviewCol) reviewCol.innerHTML = tasks.filter(t => t.status === 'review').map(t => createCard(t)).join('');
+            if (doneCol) doneCol.innerHTML = tasks.filter(t => t.status === 'done').map(t => createCard(t, true)).join('');
+
+            updateCount('col-todo', tasks.filter(t => t.status === 'todo').length);
+            updateCount('col-inprogress', tasks.filter(t => t.status === 'doing').length);
+            updateCount('col-review', tasks.filter(t => t.status === 'review').length);
+            updateCount('col-done', tasks.filter(t => t.status === 'done').length);
+        }
+
+        function updateCount(columnId, count) {
+            const columnDiv = document.getElementById(columnId);
+            if (columnDiv) {
+                const tag = columnDiv.querySelector('.tag');
+                if (tag) tag.innerText = count;
+            }
+        }
+
+        function createCard(task, isDone = false) {
+            let tagClass = 'tag-blue';
+            let priorityLabel = 'عادي';
+
+            if (task.priority === 'high') {
+                tagClass = 'tag-orange';
+                priorityLabel = 'عالي الأهمية';
+            } else if (task.priority === 'low') {
+                tagClass = 'tag-purple';
+                priorityLabel = 'منخفض';
+            }
+
+            const titleStyle = isDone ? "text-decoration: line-through; opacity: 0.6;" : "";
+            const progress = task.progress || 0;
+
+            // Escape quotes so we can pass as JSON
+            const safeTaskData = encodeURIComponent(JSON.stringify({
+                $id: task.$id,
+                title: task.title,
+                description: task.description || '',
+                status: task.status,
+                priority: task.priority,
+                assignee: task.assignee || '',
+                progress: progress,
+                taskId: task.taskId || ''
+            }));
+
+            return `
+        <div class="task-card animate-fade-in cursor-pointer hover:border-primary transition-colors" onclick="openTaskModal('${safeTaskData}')">
             <div class="flex justify-between items-start mb-2">
                 <span class="tag ${tagClass}">${priorityLabel}</span>
             </div>
             ${isDone ? '<div class="flex items-center gap-1 mb-2 text-accent-green text-xs font-bold"><span class="material-icons-round text-sm">check_circle</span> مكتمل</div>' : ''}
             <h4 class="task-title" style="${titleStyle}">${task.title || 'بدون عنوان'}</h4>
+            
+            ${!isDone && task.status === 'doing' ? `
+            <div class="progress-bar-container mt-3">
+                <div class="progress-bar" style="width: ${progress}%"></div>
+            </div>
+            <div class="text-right text-[10px] text-muted mt-1">%${progress}</div>
+            ` : ''}
+
             <div class="flex items-center justify-between mt-4 pt-3 border-t" style="border-color: var(--border-subtle)">
                 <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold" style="width:24px;height:24px;">${task.assignee ? task.assignee.charAt(0) : '?'}</div>
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-tr ${task.assignee ? 'from-purple-500 to-indigo-500' : 'from-gray-600 to-gray-500'} flex items-center justify-center text-white text-xs font-bold" style="width:24px;height:24px;">${task.assignee ? task.assignee.charAt(0) : '?'}</div>
                     <span class="text-xs text-muted">${task.assignee || 'غير محدد'}</span>
                 </div>
-                <div class="text-xs text-muted">#${task.taskId || '---'}</div>
+                <div class="text-[10px] text-muted text-left">#${task.taskId || '---'}</div>
             </div>
         </div>
         `;
-    }
+        }
 
-    // Init Appwrite Data Loop
-    updateDashboard();
-    setInterval(updateDashboard, 5000);
-</script>
+        // Modal Operations
+        const modal = document.getElementById('taskModal');
+
+        function openTaskModal(taskDataEncoded = null) {
+            modal.classList.add('active');
+
+            if (taskDataEncoded) {
+                const task = JSON.parse(decodeURIComponent(taskDataEncoded));
+                document.getElementById('modalTitle').innerText = 'تعديل المهمة';
+                document.getElementById('taskId').value = task.$id;
+                document.getElementById('taskTitle').value = task.title;
+                document.getElementById('taskDescription').value = task.description;
+                document.getElementById('taskStatus').value = task.status;
+                document.getElementById('taskPriority').value = task.priority;
+                document.getElementById('taskAssignee').value = task.assignee;
+                document.getElementById('taskProgress').value = task.progress;
+
+                document.getElementById('deleteTaskBtn').style.display = 'block';
+                document.getElementById('saveTaskBtn').innerText = 'تحديث التغييرات';
+            } else {
+                document.getElementById('modalTitle').innerText = 'مهمة جديدة';
+                document.getElementById('taskForm').reset();
+                document.getElementById('taskId').value = '';
+                document.getElementById('deleteTaskBtn').style.display = 'none';
+                document.getElementById('saveTaskBtn').innerText = 'حفظ المهمة';
+            }
+        }
+
+        function closeTaskModal() {
+            modal.classList.remove('active');
+            document.getElementById('taskForm').reset();
+        }
+
+        async function saveTask(e) {
+            e.preventDefault();
+
+            const id = document.getElementById('taskId').value;
+            const data = {
+                title: document.getElementById('taskTitle').value,
+                description: document.getElementById('taskDescription').value,
+                status: document.getElementById('taskStatus').value,
+                priority: document.getElementById('taskPriority').value,
+                assignee: document.getElementById('taskAssignee').value,
+                progress: parseInt(document.getElementById('taskProgress').value),
+                taskId: id ? undefined : `T-${Math.floor(Math.random() * 10000)}` // Keep old ID if exists
+            };
+
+            const btn = document.getElementById('saveTaskBtn');
+            const oldText = btn.innerText;
+            btn.innerText = 'جاري الحفظ...';
+            btn.disabled = true;
+
+            try {
+                if (id) {
+                    // Remove undefined fields for update
+                    const updateData = { ...data };
+                    delete updateData.taskId;
+                    await databases.updateDocument(DB_ID, COLL_TASKS, id, updateData);
+                } else {
+                    await databases.createDocument(DB_ID, COLL_TASKS, ID.unique(), data);
+                }
+                closeTaskModal();
+                updateDashboard(); // refresh
+            } catch (error) {
+                console.error('Error saving task:', error);
+                alert('حدث خطأ أثناء حفظ المهمة');
+            } finally {
+                btn.innerText = oldText;
+                btn.disabled = false;
+            }
+        }
+
+        async function deleteTask() {
+            const id = document.getElementById('taskId').value;
+            if (!id) return;
+
+            if (confirm("هل أنت متأكد من حذف هذه المهمة نهائياً؟")) {
+                const btn = document.getElementById('deleteTaskBtn');
+                btn.innerText = 'جاري الحذف...';
+                btn.disabled = true;
+                try {
+                    await databases.deleteDocument(DB_ID, COLL_TASKS, id);
+                    closeTaskModal();
+                    updateDashboard();
+                } catch (error) {
+                    console.error("Error deleting:", error);
+                    alert("حدث خطأ في عملية الحذف");
+                } finally {
+                    btn.innerText = 'حذف المهمة';
+                    btn.disabled = false;
+                }
+            }
+        }
+
+        // Close modal on outside click
+        modal.addEventListener('click', (e) => {
+            if (e.target === modal) closeTaskModal();
+        });
+
+        // Init Appwrite Data Loop
+        updateDashboard();
+        setInterval(updateDashboard, 5000);
+    </script>
 
 </body>
+
 </html>
