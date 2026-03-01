@@ -1,346 +1,309 @@
 <!DOCTYPE html>
-<html lang="en" class="dark">
+<html lang="ar" dir="rtl">
+
 <head>
-    <meta charset="utf-8"/>
-    <meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-    <title>Calendar - Hamad Ops</title>
-    
-    <!-- Fonts -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet"/>
-    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Outlined" rel="stylesheet"/>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="calendar">التقويم | OpenFlow</title>
+
+    <!-- Design System & Fonts -->
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
-    
-    <!-- Tailwind -->
-    <script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-    <script>
-        tailwind.config = {
-            darkMode: "class",
-            theme: {
-                extend: {
-                    colors: {
-                        primary: "#2563EB", // Royal Blue
-                        secondary: "#64748B", // Slate
-                        success: "#10B981", // Emerald
-                        warning: "#F59E0B", // Amber
-                        danger: "#EF4444", // Red
-                        "background-light": "#F3F4F6", // Gray 100
-                        "background-dark": "#0F172A", // Slate 900
-                        "surface-light": "#FFFFFF",
-                        "surface-dark": "#1E293B", // Slate 800
-                        "border-light": "#E2E8F0", // Slate 200
-                        "border-dark": "#334155", // Slate 700
-                        "text-main-light": "#1E293B", // Slate 800
-                        "text-main-dark": "#F8FAFC", // Slate 50
-                        "text-muted-light": "#64748B", // Slate 500
-                        "text-muted-dark": "#94A3B8", // Slate 400
-                    },
-                    fontFamily: {
-                        display: ["Inter", "sans-serif"],
-                        body: ["Inter", "sans-serif"],
-                    },
-                    borderRadius: {
-                        DEFAULT: "0.5rem",
-                        'xl': "0.75rem",
-                        '2xl': "1rem",
-                    },
-                    boxShadow: {
-                        'soft': '0 4px 6px -1px rgba(0, 0, 0, 0.02), 0 2px 4px -1px rgba(0, 0, 0, 0.02)',
-                        'glow': '0 0 15px rgba(37, 99, 235, 0.3)',
-                    }
-                },
-            },
-        };
-    </script>
-    
-    <!-- FullCalendar & Appwrite -->
+    <script src="translations.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
     <script src='https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/index.global.min.js'></script>
 
     <style>
-        .custom-scrollbar::-webkit-scrollbar { width: 6px; }
-        .custom-scrollbar::-webkit-scrollbar-track { background: transparent; }
-        .custom-scrollbar::-webkit-scrollbar-thumb { background: #CBD5E1; border-radius: 4px; }
-        .dark .custom-scrollbar::-webkit-scrollbar-thumb { background: #475569; }
-        
-        body { font-family: 'Inter', sans-serif; }
-
-        /* FullCalendar Overrides for Tailwind Theme */
+        /* FullCalendar Overrides for Custom Design System */
         :root {
-            --fc-border-color: #E2E8F0;
+            --fc-border-color: var(--border-subtle);
             --fc-page-bg-color: transparent;
             --fc-neutral-bg-color: transparent;
-            --fc-list-event-hover-bg-color: #F1F5F9;
-            --fc-today-bg-color: rgba(37, 99, 235, 0.05);
+            --fc-list-event-hover-bg-color: var(--bg-card-hover);
+            --fc-today-bg-color: rgba(59, 130, 246, 0.1);
             --fc-event-border-color: transparent;
         }
-        .dark {
-            --fc-border-color: #334155;
-            --fc-list-event-hover-bg-color: #1E293B;
-            --fc-today-bg-color: rgba(37, 99, 235, 0.1);
-        }
-        
-        .fc-theme-standard td, .fc-theme-standard th { border-color: var(--fc-border-color); }
-        .fc-col-header-cell-cushion { color: #64748B; font-weight: 600; padding: 10px 0; }
-        .dark .fc-col-header-cell-cushion { color: #94A3B8; }
-        .fc-daygrid-day-number { color: #1E293B; font-weight: 500; padding: 8px; }
-        .dark .fc-daygrid-day-number { color: #F8FAFC; }
-        
-        .fc-button-primary { 
-            background-color: #ffffff !important; 
-            border: 1px solid #E2E8F0 !important; 
-            color: #64748B !important; 
-            font-weight: 500 !important;
-            text-transform: capitalize !important;
-            box-shadow: 0 1px 2px 0 rgba(0, 0, 0, 0.05) !important;
-        }
-        .dark .fc-button-primary { 
-            background-color: #1E293B !important; 
-            border-color: #334155 !important; 
-            color: #94A3B8 !important; 
-        }
-        .fc-button-primary:hover { background-color: #F8FAFC !important; }
-        .dark .fc-button-primary:hover { background-color: #334155 !important; color: #F8FAFC !important; }
-        
-        .fc-button-active { 
-            background-color: #EFF6FF !important; 
-            color: #2563EB !important; 
-            border-color: #2563EB !important; 
-        }
-        .dark .fc-button-active { 
-            background-color: rgba(37, 99, 235, 0.2) !important; 
-            color: #60A5FA !important; 
-            border-color: #2563EB !important; 
-        }
-        
-        .fc-toolbar-title { font-size: 1.25rem !important; font-weight: 700 !important; color: #1E293B; }
-        .dark .fc-toolbar-title { color: #F8FAFC; }
 
-        .fc-event { border-radius: 4px; padding: 2px 4px; font-size: 0.85em; border: none; box-shadow: 0 1px 2px rgba(0,0,0,0.1); }
+        .fc-theme-standard td,
+        .fc-theme-standard th {
+            border-color: var(--fc-border-color);
+        }
+
+        .fc-col-header-cell-cushion {
+            color: var(--text-secondary);
+            font-weight: 700;
+            padding: 10px 0;
+            font-family: var(--font-arabic);
+        }
+
+        .fc-daygrid-day-number {
+            color: var(--text-primary);
+            font-weight: 600;
+            padding: 8px;
+            font-family: var(--font-arabic);
+        }
+
+        .fc-button-primary {
+            background-color: var(--bg-card) !important;
+            border: 1px solid var(--border-light) !important;
+            color: var(--text-secondary) !important;
+            font-weight: 600 !important;
+            text-transform: capitalize !important;
+            font-family: var(--font-arabic) !important;
+        }
+
+        .fc-button-primary:hover {
+            background-color: var(--bg-card-hover) !important;
+            color: var(--text-primary) !important;
+        }
+
+        .fc-button-active {
+            background-color: rgba(59, 130, 246, 0.2) !important;
+            color: var(--primary) !important;
+            border-color: var(--primary) !important;
+        }
+
+        .fc-toolbar-title {
+            font-size: 1.25rem !important;
+            font-weight: 800 !important;
+            color: var(--text-primary);
+            font-family: var(--font-arabic);
+        }
+
+        .fc-event {
+            border-radius: var(--radius-sm);
+            padding: 2px 4px;
+            font-size: 0.85em;
+            border: none;
+            font-family: var(--font-arabic);
+        }
+
+        .modal-overlay {
+            position: fixed;
+            inset: 0;
+            z-index: 100;
+            background: rgba(0, 0, 0, 0.6);
+            backdrop-filter: blur(4px);
+            display: none;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active {
+            display: flex;
+        }
+
+        .form-input {
+            width: 100%;
+            background: rgba(255, 255, 255, 0.03);
+            border: 1px solid var(--border-light);
+            color: var(--text-primary);
+            padding: 0.5rem 1rem;
+            border-radius: var(--radius-md);
+            font-family: inherit;
+        }
+
+        .form-input:focus {
+            outline: none;
+            border-color: var(--primary);
+        }
     </style>
 </head>
-<body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark font-body antialiased h-screen overflow-hidden flex transition-colors duration-200">
 
-    <!-- Sidebar -->
-    <aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-border-light dark:border-border-dark flex flex-col h-full flex-shrink-0 transition-colors duration-200 z-20">
-        <div class="p-6 border-b border-border-light dark:border-border-dark">
-            <div class="flex items-center space-x-3">
-                <div class="w-10 h-10 rounded-full bg-primary flex items-center justify-center text-white font-bold shadow-sm">M</div>
-                <div class="flex flex-col">
-                    <span class="text-sm font-semibold text-text-main-light dark:text-text-main-dark">Mohammed</span>
-                    <span class="text-xs text-text-muted-light dark:text-text-muted-dark truncate max-w-[120px]">Owner</span>
-                </div>
-            </div>
-        </div>
+<body>
 
-        <nav class="flex-1 px-4 py-4 space-y-1 overflow-y-auto">
-            <div class="px-4 pb-2 text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider">Main</div>
-            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="index.html">
-                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">grid_view</span>
-                <span class="font-medium">Dashboard</span>
-            </a>
-            
-            <div class="px-4 pb-2 pt-4 text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider">Workspace</div>
-            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="content.html">
-                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">campaign</span>
-                <span class="font-medium">Content Pipeline</span>
-            </a>
-            <a class="flex items-center space-x-3 px-4 py-3 text-primary bg-blue-50 dark:bg-blue-900/20 rounded-xl transition-colors" href="calendar.html">
-                <span class="material-icons-outlined text-xl">calendar_today</span>
-                <span class="font-medium">Calendar</span>
-            </a>
-             <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="memory.html">
-                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">psychology</span>
-                <span class="font-medium">Memory Bank</span>
-            </a>
+    <div class="app-container">
 
-            <div class="px-4 pb-2 pt-4 text-xs font-semibold text-text-muted-light dark:text-text-muted-dark uppercase tracking-wider">Team</div>
-            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="team.html">
-                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">groups</span>
-                <span class="font-medium">Structure</span>
-            </a>
-            <a class="flex items-center space-x-3 px-4 py-3 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-xl transition-colors group" href="office.html">
-                <span class="material-icons-outlined text-xl group-hover:text-primary transition-colors">apartment</span>
-                <span class="font-medium">Digital Office</span>
-            </a>
-        </nav>
-
-        <div class="p-4 mt-auto">
-             <div class="bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-2xl p-4 shadow-sm">
-                <h4 class="text-xs font-bold text-text-muted-light dark:text-text-muted-dark uppercase mb-3">Upcoming Events</h4>
-                <div class="space-y-3">
-                    <div class="flex items-start space-x-3">
-                        <div class="flex-shrink-0 w-10 text-center bg-blue-50 dark:bg-blue-900/20 rounded-lg py-1">
-                            <div class="text-xs font-bold text-primary uppercase">Fri</div>
-                            <div class="text-sm font-bold text-text-main-light dark:text-text-main-dark">27</div>
-                        </div>
-                        <div>
-                            <p class="text-xs font-semibold text-text-main-light dark:text-text-main-dark line-clamp-1">Weekly Sync</p>
-                            <p class="text-[10px] text-text-muted-light dark:text-text-muted-dark">10:00 AM • Meet</p>
-                        </div>
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="brand">
+                    <div class="brand-icon">
+                        <span class="material-icons-round">bolt</span>
                     </div>
-                    <div class="flex items-start space-x-3">
-                        <div class="flex-shrink-0 w-10 text-center bg-purple-50 dark:bg-purple-900/20 rounded-lg py-1">
-                            <div class="text-xs font-bold text-purple-600 dark:text-purple-400 uppercase">Sat</div>
-                            <div class="text-sm font-bold text-text-main-light dark:text-text-main-dark">28</div>
-                        </div>
-                        <div>
-                            <p class="text-xs font-semibold text-text-main-light dark:text-text-main-dark line-clamp-1">System Backup</p>
-                            <p class="text-[10px] text-text-muted-light dark:text-text-muted-dark">12:00 AM • Cron</p>
-                        </div>
+                    <span class="brand-text">OpenFlow</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-label" data-i18n="main_menu">القائمة الرئيسية</div>
+                <a href="index.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">grid_view</span>
+                    <span data-i18n="overview">الرئيسية</span>
+                </a>
+                <a href="content.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">campaign</span>
+                    <span data-i18n="content_pipeline">دورة المحتوى</span>
+                </a>
+                <a href="calendar.html" class="nav-item active">
+                    <span class="material-icons-round nav-icon">calendar_today</span>
+                    <span data-i18n="calendar">التقويم</span>
+                </a>
+                <a href="memory.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">folder_open</span>
+                    <span data-i18n="memory_bank">بنك الذاكرة</span>
+                </a>
+
+                <div class="nav-label mt-4" data-i18n="team_office">الفريق والمكتب</div>
+                <a href="team.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">people</span>
+                    <span data-i18n="team">الفريق</span>
+                </a>
+                <a href="office.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">apartment</span>
+                    <span data-i18n="digital_office">المكتب الرقمي</span>
+                </a>
+            </nav>
+
+            <div class="sidebar-footer">
+                <div class="user-widget">
+                    <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuClJbufReK6q7IYBEZs_M2xG3rdyvnAvZFqMHC5q0VV5H7gEkUtSzc0W_XjdxwGyUyA6VCIpFj7DQAIG4K3D0tynbWdi36V4s7kmUL3ZP1IIamtXqhliFx_eWJtbtGoQE0XJJGVJ7bb2OEzqdlkWb1OM5U3eJI22vsKlXy4KT6E-PvAjC_2R1av5rYL1zalxvU63UH0QNfOXjR1bPT25VYyRW4lj3q5S9ei7ubtlxRonQhINQb5zG7UUsjslH7GPyoJ8_VBLw1UYCQ"
+                        alt="User Profile" class="user-avatar">
+                    <div class="user-info">
+                        <span class="user-name">حمد العتيبي</span>
+                        <span class="user-role">المدير التنفيذي</span>
                     </div>
                 </div>
             </div>
-        </div>
-    </aside>
+        </aside>
 
-    <main class="flex-1 flex flex-col h-full min-w-0 bg-background-light dark:bg-background-dark overflow-hidden transition-colors duration-200">
-        
-        <!-- Header -->
-        <header class="bg-surface-light dark:bg-surface-dark border-b border-border-light dark:border-border-dark py-4 px-8 flex items-center justify-between flex-shrink-0 z-10">
-            <div class="flex items-center flex-1 max-w-2xl">
-                <span class="material-icons-outlined text-text-muted-light dark:text-text-muted-dark text-xl mr-3">search</span>
-                <input class="bg-transparent border-none text-text-main-light dark:text-text-main-dark placeholder-text-muted-light dark:placeholder-text-muted-dark focus:ring-0 w-full text-sm" placeholder="Search events..." type="text"/>
-            </div>
-            <div class="flex items-center space-x-6">
-                <button class="relative text-text-muted-light dark:text-text-muted-dark hover:text-primary transition-colors">
-                    <span class="material-icons-outlined text-2xl">notifications</span>
-                    <span class="absolute top-0 right-0 h-2.5 w-2.5 bg-danger rounded-full border-2 border-surface-light dark:border-surface-dark"></span>
-                </button>
-                <div class="flex items-center space-x-3 pl-6 border-l border-border-light dark:border-border-dark">
-                    <div class="h-10 w-10 bg-primary/10 rounded-full flex items-center justify-center text-primary font-bold">
-                        <span class="material-icons-outlined">event</span>
-                    </div>
-                    <div class="flex flex-col hidden md:flex">
-                        <span class="text-sm font-semibold text-text-main-light dark:text-text-main-dark">Hamad Schedule</span>
-                        <span class="text-xs text-text-muted-light dark:text-text-muted-dark">Master Calendar</span>
+        <!-- Main Content -->
+        <main class="main-wrapper">
+            <header class="topbar">
+                <div class="search-container">
+                    <span class="material-icons-round search-icon">search</span>
+                    <input type="text" class="search-input" placeholder="ابحث في التقويم..."
+                        data-i18n-placeholder="search_tasks">
+                </div>
+
+                <div class="topbar-actions">
+                    <div class="lang-switcher">
+                        <button id="lang-switcher-en" class="lang-btn" onclick="setLanguage('en')">EN</button>
+                        <button id="lang-switcher-ar" class="lang-btn active" onclick="setLanguage('ar')">عربي</button>
                     </div>
                 </div>
-                <button class="p-2 rounded-full bg-background-light dark:bg-background-dark text-text-muted-light dark:text-text-muted-dark hover:text-primary transition-colors" onclick="document.documentElement.classList.toggle('dark')">
-                    <span class="material-icons-outlined dark:hidden">dark_mode</span>
-                    <span class="material-icons-outlined hidden dark:block">light_mode</span>
-                </button>
-            </div>
-        </header>
+            </header>
 
-        <!-- Calendar Content -->
-        <div class="flex-1 overflow-hidden p-8 flex flex-col">
-            <div class="flex items-center justify-between mb-6">
-                <div>
-                    <h1 class="text-2xl font-bold text-text-main-light dark:text-text-main-dark">Calendar</h1>
-                    <p class="text-text-muted-light dark:text-text-muted-dark text-sm mt-1">Schedule tasks, meetings, and automated cron jobs.</p>
+            <div class="page-content flex-col flex h-full">
+                <div class="page-header flex-shrink-0">
+                    <div>
+                        <h1 class="page-title text-gradient"><i class="fas fa-calendar-alt ml-2"></i>جدول المواعيد
+                            والمهام</h1>
+                        <p class="page-subtitle">قم بجدولة المهام، الاجتماعات، وأتمتة الجداول الزمنية الخاصة بك.</p>
+                    </div>
+                    <div class="flex gap-3">
+                        <button class="btn btn-secondary" onclick="openModal()">
+                            <span class="material-icons-round text-sm">add</span> اضافة حدث
+                        </button>
+                    </div>
                 </div>
-                <div class="flex space-x-3">
-                     <button class="px-4 py-2 bg-surface-light dark:bg-surface-dark border border-border-light dark:border-border-dark rounded-lg text-sm font-medium text-text-main-light dark:text-text-main-dark hover:bg-background-light dark:hover:bg-background-dark transition-colors flex items-center shadow-sm">
-                        <span class="material-icons-outlined text-base mr-2">filter_list</span> Filter
-                    </button>
-                    <button class="px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-lg text-sm font-medium shadow-soft transition-colors flex items-center" onclick="openModal()">
-                        <span class="material-icons-outlined text-base mr-2">add</span> Add Event
-                    </button>
+
+                <!-- Calendar Container -->
+                <div class="glass-card flex-1 min-h-[500px]">
+                    <div id="calendar" style="height: 100%;"></div>
                 </div>
             </div>
-
-            <div class="bg-surface-light dark:bg-surface-dark rounded-2xl shadow-soft border border-border-light dark:border-border-dark flex-1 p-6 overflow-hidden flex flex-col">
-                <div id="calendar" class="h-full"></div>
-            </div>
-        </div>
-    </main>
+        </main>
+    </div>
 
     <!-- Modal -->
-    <div class="fixed inset-0 z-50 hidden bg-black/50 backdrop-blur-sm flex items-center justify-center p-4" id="eventModal">
-        <div class="bg-surface-light dark:bg-surface-dark w-full max-w-md rounded-2xl shadow-2xl border border-border-light dark:border-border-dark flex flex-col">
-            <div class="p-6 border-b border-border-light dark:border-border-dark flex justify-between items-center">
-                <h3 class="text-lg font-bold text-text-main-light dark:text-text-main-dark">New Event</h3>
-                <button class="text-text-muted-light dark:text-text-muted-dark hover:text-danger transition-colors" onclick="closeModal()">
-                    <span class="material-icons-outlined">close</span>
+    <div class="modal-overlay" id="eventModal">
+        <div class="glass-card" style="width: 100%; max-width: 450px;">
+            <div class="flex justify-between items-center border-b border-light pb-4 mb-4"
+                style="border-bottom: 1px solid var(--border-light)">
+                <h3 class="text-xl font-bold">حدث جديد</h3>
+                <button class="btn-ghost p-1" onclick="closeModal()">
+                    <span class="material-icons-round">close</span>
                 </button>
             </div>
-            <div class="p-6 space-y-4">
+            <div class="flex flex-col gap-4">
                 <div>
-                    <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Title</label>
-                    <input type="text" id="evtTitle" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2 text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary focus:border-transparent" placeholder="Meeting / Task name">
+                    <label class="block text-sm font-semibold text-muted mb-1">عنوان الحدث</label>
+                    <input type="text" id="evtTitle" class="form-input" placeholder="مثال: اجتماع فريق التسويق">
                 </div>
                 <div>
-                    <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Type</label>
-                    <select id="evtType" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2 text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary">
-                        <option value="task">Task</option>
-                        <option value="meeting">Meeting</option>
-                        <option value="cron">Cron Job</option>
+                    <label class="block text-sm font-semibold text-muted mb-1">النوع</label>
+                    <select id="evtType" class="form-input">
+                        <option value="task">مهمة</option>
+                        <option value="meeting">اجتماع</option>
+                        <option value="cron">أتمتة (Cron)</option>
                     </select>
                 </div>
                 <div class="grid grid-cols-2 gap-4">
                     <div>
-                        <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Start</label>
-                        <input type="datetime-local" id="evtStart" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2 text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary text-xs">
+                        <label class="block text-sm font-semibold text-muted mb-1">البداية</label>
+                        <input type="datetime-local" id="evtStart" class="form-input">
                     </div>
                     <div>
-                        <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">End (Opt)</label>
-                        <input type="datetime-local" id="evtEnd" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2 text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary text-xs">
+                        <label class="block text-sm font-semibold text-muted mb-1">النهاية (اختياري)</label>
+                        <input type="datetime-local" id="evtEnd" class="form-input">
                     </div>
                 </div>
-                <div id="cronField" class="hidden">
-                    <label class="block text-sm font-medium text-text-muted-light dark:text-text-muted-dark mb-1">Cron Expression</label>
-                    <input type="text" id="evtCron" class="w-full bg-background-light dark:bg-background-dark border border-border-light dark:border-border-dark rounded-lg px-4 py-2 text-text-main-light dark:text-text-main-dark focus:ring-2 focus:ring-primary font-mono text-sm" placeholder="0 0 * * *">
+                <div id="cronField" style="display: none;">
+                    <label class="block text-sm font-semibold text-muted mb-1">تعبير Cron</label>
+                    <input type="text" id="evtCron" class="form-input font-mono dir-ltr" style="direction: ltr"
+                        placeholder="0 0 * * *">
                 </div>
             </div>
-            <div class="p-6 border-t border-border-light dark:border-border-dark flex justify-end gap-3">
-                <button class="px-4 py-2 text-text-muted-light dark:text-text-muted-dark hover:bg-background-light dark:hover:bg-background-dark rounded-lg font-medium transition-colors" onclick="closeModal()">Cancel</button>
-                <button class="px-4 py-2 bg-primary hover:bg-blue-700 text-white rounded-lg font-medium shadow-soft transition-colors" onclick="saveEvent()">Save Event</button>
+            <div class="flex justify-end gap-3 mt-6 pt-4 border-t border-light"
+                style="border-top: 1px solid var(--border-light)">
+                <button class="btn btn-ghost" onclick="closeModal()">إلغاء</button>
+                <button class="btn btn-primary" onclick="saveEvent()">حفظ الحدث</button>
             </div>
         </div>
     </div>
 
+    <!-- Scripts -->
     <script>
         const { Client, Databases, Query, ID } = Appwrite;
         const client = new Client();
         client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
         const databases = new Databases(client);
-        
+
         const DB_ID = 'hamad_ops';
         const COLL_CALENDAR = 'calendar_events';
 
         let calendar;
 
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', function () {
             var calendarEl = document.getElementById('calendar');
-            
+
             calendar = new FullCalendar.Calendar(calendarEl, {
                 initialView: 'dayGridMonth',
+                direction: 'rtl', // Native RTL support
+                locale: 'ar',
                 headerToolbar: {
-                    left: 'prev,next today',
+                    right: 'prev,next today',
                     center: 'title',
-                    right: 'dayGridMonth,timeGridWeek,listWeek'
+                    left: 'dayGridMonth,timeGridWeek,listWeek'
                 },
                 buttonText: {
-                    today: 'Today',
-                    month: 'Month',
-                    week: 'Week',
-                    list: 'List'
+                    today: 'اليوم',
+                    month: 'شهر',
+                    week: 'أسبوع',
+                    list: 'قائمة'
                 },
                 themeSystem: 'standard',
                 height: '100%',
                 navLinks: true,
                 editable: true,
                 dayMaxEvents: true,
-                events: async function(info, successCallback, failureCallback) {
+                events: async function (info, successCallback, failureCallback) {
                     try {
                         const response = await databases.listDocuments(DB_ID, COLL_CALENDAR, [Query.limit(100)]);
-                        
                         const events = response.documents.map(doc => {
-                            let color = '#2563EB'; // primary
-                            if (doc.type === 'cron') color = '#EF4444'; // danger
-                            if (doc.type === 'meeting') color = '#10B981'; // success
-                            
+                            let color = 'var(--primary)'; // primary
+                            if (doc.type === 'cron') color = 'var(--accent-red)';
+                            if (doc.type === 'meeting') color = 'var(--accent-green)';
+
                             return {
                                 id: doc.$id,
-                                title: doc.title + (doc.type === 'cron' ? ' (Cron)' : ''),
+                                title: doc.title + (doc.type === 'cron' ? ' 🔄' : ''),
                                 start: doc.start,
                                 end: doc.end || null,
                                 backgroundColor: color,
                                 borderColor: color,
-                                extendedProps: {
-                                    type: doc.type,
-                                    cron: doc.cronExpression
-                                }
                             };
                         });
                         successCallback(events);
@@ -354,20 +317,20 @@
 
             document.getElementById('evtType').addEventListener('change', (e) => {
                 const cronField = document.getElementById('cronField');
-                if(e.target.value === 'cron') cronField.classList.remove('hidden');
-                else cronField.classList.add('hidden');
+                if (e.target.value === 'cron') cronField.style.display = 'block';
+                else cronField.style.display = 'none';
             });
         });
 
         function openModal() {
-            document.getElementById('eventModal').classList.remove('hidden');
+            document.getElementById('eventModal').classList.add('active');
             const now = new Date();
             now.setMinutes(now.getMinutes() - now.getTimezoneOffset());
-            document.getElementById('evtStart').value = now.toISOString().slice(0,16);
+            document.getElementById('evtStart').value = now.toISOString().slice(0, 16);
         }
 
         function closeModal() {
-            document.getElementById('eventModal').classList.add('hidden');
+            document.getElementById('eventModal').classList.remove('active');
         }
 
         async function saveEvent() {
@@ -379,7 +342,7 @@
             const cron = document.getElementById('evtCron').value;
 
             if (!title || !start) {
-                alert('Title and Start Time are required');
+                alert('يجب إدخال العنوان ووقت البداية');
                 return;
             }
 
@@ -390,9 +353,11 @@
                 closeModal();
                 calendar.refetchEvents();
             } catch (error) {
-                alert('Error saving: ' + error.message);
+                alert('حدث خطأ أثناء الحفظ: ' + error.message);
             }
         }
     </script>
+
 </body>
+
 </html>

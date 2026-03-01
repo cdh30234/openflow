@@ -1,78 +1,52 @@
 <!DOCTYPE html>
 <html lang="ar" dir="rtl">
+
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>⚡ Hamad Digital Office</title>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title data-i18n="digital_office">المكتب الرقمي | OpenFlow</title>
+
+    <!-- Design System & Fonts -->
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
     <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css" rel="stylesheet">
+    <script src="translations.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+
     <style>
-        :root {
-            --bg: #0f172a;
-            --floor-bg: #1e293b;
-            --desk-bg: #334155;
-            --screen-off: #1e293b;
-            --screen-on: #3b82f6; /* Blue light */
-            --accent: #3b82f6;
-            --text: #e2e8f0;
-            --success: #22c55e;
-            --danger: #ef4444;
-        }
-        
-        body {
-            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background-color: var(--bg);
-            color: var(--text);
-            margin: 0;
-            height: 100vh;
-            display: flex;
-            flex-direction: column;
-            overflow: hidden;
-        }
-
-        /* Header */
-        .header {
-            padding: 20px 40px;
-            border-bottom: 1px solid #334155;
-            display: flex;
-            justify-content: space-between;
-            align-items: center;
-            background: rgba(15, 23, 42, 0.9);
-            z-index: 10;
-        }
-        .header h1 { margin: 0; font-size: 1.5rem; color: var(--accent); display: flex; align-items: center; gap: 10px; }
-        .back-btn { color: #94a3b8; text-decoration: none; display: flex; align-items: center; gap: 8px; font-weight: 500; transition: color 0.2s; }
-        .back-btn:hover { color: white; }
-
-        /* Office Floor */
-        .office-container {
+        .office-scene {
             flex-grow: 1;
             position: relative;
-            background-image: 
-                radial-gradient(#334155 1px, transparent 1px),
-                radial-gradient(#334155 1px, transparent 1px);
+            background-image:
+                radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px),
+                radial-gradient(rgba(255, 255, 255, 0.05) 1px, transparent 1px);
             background-position: 0 0, 25px 25px;
             background-size: 50px 50px;
             display: flex;
             justify-content: center;
             align-items: center;
-            perspective: 1000px;
+            perspective: 1200px;
+            overflow: hidden;
+            border-radius: var(--radius-xl);
+            border: 1px solid var(--border-subtle);
+            min-height: 500px;
         }
 
         .floor-plan {
             width: 80%;
             height: 70%;
-            background: rgba(30, 41, 59, 0.5);
-            border: 2px solid #334155;
+            background: rgba(30, 41, 59, 0.4);
+            border: 2px solid var(--border-light);
             border-radius: 20px;
             position: relative;
-            display: grid;
-            grid-template-columns: repeat(3, 1fr);
-            grid-template-rows: 1fr;
+            display: flex;
+            justify-content: center;
+            align-items: space-around;
             gap: 40px;
             padding: 50px;
-            box-shadow: 0 0 50px rgba(0,0,0,0.5);
-            transform: rotateX(20deg); /* 2.5D Effect */
+            box-shadow: 0 20px 80px rgba(0, 0, 0, 0.6);
+            transform: rotateX(30deg);
+            transform-style: preserve-3d;
         }
 
         /* Workstation Component */
@@ -83,16 +57,17 @@
             justify-content: center;
             position: relative;
             transition: all 0.5s ease;
+            transform-style: preserve-3d;
         }
 
         .desk-area {
             position: relative;
-            width: 200px;
-            height: 120px;
-            background: var(--desk-bg);
+            width: 180px;
+            height: 100px;
+            background: var(--bg-card-hover);
             border-radius: 12px;
-            border-bottom: 8px solid #1e293b;
-            box-shadow: 0 20px 30px rgba(0,0,0,0.3);
+            border-bottom: 10px solid var(--bg-card);
+            box-shadow: 0 30px 40px rgba(0, 0, 0, 0.5);
             display: flex;
             justify-content: center;
             align-items: flex-end;
@@ -101,23 +76,24 @@
         }
 
         .monitor {
-            width: 80px;
-            height: 50px;
+            width: 70px;
+            height: 45px;
             background: #000;
-            border: 4px solid #475569;
+            border: 3px solid #475569;
             border-radius: 4px;
             position: absolute;
-            top: -30px;
+            top: -25px;
             transition: all 0.3s;
             overflow: hidden;
             display: flex;
             align-items: center;
             justify-content: center;
+            transform: translateZ(20px);
         }
-        
+
         .monitor-stand {
-            width: 10px;
-            height: 20px;
+            width: 8px;
+            height: 15px;
             background: #475569;
             position: absolute;
             top: 20px;
@@ -126,37 +102,39 @@
         .screen {
             width: 100%;
             height: 100%;
-            background: var(--screen-off);
+            background: var(--bg-card);
             opacity: 0.8;
         }
 
         /* Avatar */
         .avatar-container {
             position: absolute;
-            bottom: -30px;
+            bottom: -40px;
             z-index: 3;
             transition: transform 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            transform: translateZ(30px);
         }
 
         .avatar {
-            width: 60px;
-            height: 60px;
+            width: 50px;
+            height: 50px;
             border-radius: 50%;
             background: #475569;
-            border: 3px solid #1e293b;
+            border: 3px solid var(--bg-card);
             display: flex;
             justify-content: center;
             align-items: center;
-            font-size: 1.5rem;
-            box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+            font-size: 1.2rem;
+            color: white;
+            box-shadow: 0 10px 20px rgba(0, 0, 0, 0.4);
             position: relative;
         }
 
         .status-dot {
-            width: 15px;
-            height: 15px;
-            background: #94a3b8;
-            border: 2px solid #1e293b;
+            width: 12px;
+            height: 12px;
+            background: var(--text-muted);
+            border: 2px solid var(--bg-card);
             border-radius: 50%;
             position: absolute;
             bottom: 0;
@@ -167,144 +145,268 @@
         .agent-info {
             background: rgba(15, 23, 42, 0.9);
             padding: 10px 15px;
-            border-radius: 8px;
-            border: 1px solid #334155;
+            border-radius: var(--radius-md);
+            border: 1px solid var(--border-subtle);
             position: absolute;
-            top: -100px;
+            top: -90px;
             text-align: center;
-            width: 180px;
+            width: 160px;
             opacity: 0;
-            transform: translateY(10px);
+            transform: translateY(10px) translateZ(40px);
             transition: all 0.3s;
             pointer-events: none;
+            backdrop-filter: blur(4px);
         }
-        .workstation:hover .agent-info { opacity: 1; transform: translateY(0); }
-        .agent-name { font-weight: bold; color: white; display: block; margin-bottom: 4px; }
-        .agent-task { font-size: 0.8rem; color: #94a3b8; display: block; }
+
+        .workstation:hover .agent-info {
+            opacity: 1;
+            transform: translateY(0) translateZ(40px);
+        }
+
+        .agent-name {
+            font-weight: bold;
+            color: white;
+            display: block;
+            margin-bottom: 4px;
+            font-size: 0.9rem;
+        }
+
+        .agent-task {
+            font-size: 0.75rem;
+            color: var(--text-muted);
+            display: block;
+        }
 
         /* States: Working */
         .workstation.working .screen {
-            background: var(--screen-on);
-            box-shadow: 0 0 20px var(--accent);
+            background: var(--primary);
+            box-shadow: 0 0 15px var(--primary-glow);
             animation: flicker 0.1s infinite;
         }
+
         .workstation.working .avatar-container {
-            transform: translateY(-20px) scale(1.1); /* Sit closer */
+            transform: translateY(-15px) translateZ(30px);
+            /* Sit closer */
         }
+
         .workstation.working .status-dot {
-            background: var(--success);
-            box-shadow: 0 0 10px var(--success);
+            background: var(--accent-green);
+            box-shadow: 0 0 10px var(--accent-green);
         }
-        
-        /* Specific Styles for Hamad (The Boss Desk) */
-        .workstation.agent-Hamad { transform: scale(1.1); }
-        .workstation.agent-Hamad .desk-area { width: 240px; background: #1e3a8a; } /* Blue desk */
-        .workstation.agent-Hamad .avatar { background: var(--accent); color: white; }
+
+        /* Boss Desk */
+        .workstation.agent-Hamad {
+            transform: scale(1.2);
+            z-index: 10;
+            margin: 0 30px;
+        }
+
+        .workstation.agent-Hamad .desk-area {
+            background: linear-gradient(135deg, rgba(30, 58, 138, 0.8), rgba(15, 23, 42, 0.9));
+            border-bottom-color: #0f172a;
+        }
+
+        .workstation.agent-Hamad .avatar {
+            background: linear-gradient(135deg, var(--primary), var(--secondary));
+        }
 
         @keyframes flicker {
-            0% { opacity: 0.9; } 50% { opacity: 1; } 100% { opacity: 0.95; }
+            0% {
+                opacity: 0.9;
+            }
+
+            50% {
+                opacity: 1;
+            }
+
+            100% {
+                opacity: 0.95;
+            }
         }
 
         @keyframes typing {
-            0% { transform: translateY(0); } 50% { transform: translateY(-2px); } 100% { transform: translateY(0); }
-        }
-        .workstation.working .avatar { animation: typing 0.5s infinite; }
+            0% {
+                margin-top: 0;
+            }
 
+            50% {
+                margin-top: -2px;
+            }
+
+            100% {
+                margin-top: 0;
+            }
+        }
+
+        .workstation.working .avatar {
+            animation: typing 0.5s infinite;
+        }
     </style>
 </head>
+
 <body>
 
-<div class="header">
-    <div style="display:flex; align-items:center; gap:20px">
-        <a href="index.html" class="back-btn"><i class="fas fa-arrow-left"></i> Dashboard</a>
-        <h1><i class="fas fa-building"></i> Digital Office <span id="clock" style="font-size:0.9rem; color:#64748b; margin-left:15px; font-weight:normal">--:--</span></h1>
-    </div>
-    <div style="font-size:0.9rem; color:#94a3b8">
-        <span style="margin-right:15px"><span style="color:var(--success)">●</span> Working</span>
-        <span><span style="color:#94a3b8">●</span> Idle</span>
-    </div>
-</div>
+    <div class="app-container">
 
-<div class="office-container">
-    <div class="floor-plan" id="office-floor">
-        <!-- Agents will be injected here -->
-        <div style="color:white; grid-column:1/-1; text-align:center;">Loading Office...</div>
+        <!-- Sidebar Navigation -->
+        <aside class="sidebar">
+            <div class="sidebar-header">
+                <a href="index.html" class="brand">
+                    <div class="brand-icon">
+                        <span class="material-icons-round">bolt</span>
+                    </div>
+                    <span class="brand-text">OpenFlow</span>
+                </a>
+            </div>
+
+            <nav class="sidebar-nav">
+                <div class="nav-label" data-i18n="main_menu">القائمة الرئيسية</div>
+                <a href="index.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">grid_view</span>
+                    <span data-i18n="overview">الرئيسية</span>
+                </a>
+                <a href="content.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">campaign</span>
+                    <span data-i18n="content_pipeline">دورة المحتوى</span>
+                </a>
+                <a href="calendar.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">calendar_today</span>
+                    <span data-i18n="calendar">التقويم</span>
+                </a>
+                <a href="memory.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">folder_open</span>
+                    <span data-i18n="memory_bank">بنك الذاكرة</span>
+                </a>
+
+                <div class="nav-label mt-4" data-i18n="team_office">الفريق والمكتب</div>
+                <a href="team.html" class="nav-item">
+                    <span class="material-icons-round nav-icon">people</span>
+                    <span data-i18n="team">الفريق</span>
+                </a>
+                <a href="office.html" class="nav-item active">
+                    <span class="material-icons-round nav-icon">apartment</span>
+                    <span data-i18n="digital_office">المكتب الرقمي</span>
+                </a>
+            </nav>
+        </aside>
+
+        <!-- Main Content -->
+        <main class="main-wrapper">
+            <header class="topbar">
+                <div class="search-container">
+                    <div class="text-sm text-secondary font-medium mr-4 flex items-center gap-2">
+                        <span class="material-icons-round text-lg text-primary">schedule</span>
+                        توقيت الخادم: <span id="clock" class="font-mono ml-2 text-primary"
+                            style="direction: ltr">--:--:--</span>
+                    </div>
+                </div>
+
+                <div class="topbar-actions">
+                    <div class="lang-switcher">
+                        <button id="lang-switcher-en" class="lang-btn" onclick="setLanguage('en')">EN</button>
+                        <button id="lang-switcher-ar" class="lang-btn active" onclick="setLanguage('ar')">عربي</button>
+                    </div>
+                </div>
+            </header>
+
+            <div class="page-content flex-col flex h-full">
+                <div class="page-header flex-shrink-0">
+                    <div>
+                        <h1 class="page-title text-gradient"><i class="fas fa-building ml-2"></i>المكتب الرقمي المباشر
+                        </h1>
+                        <p class="page-subtitle">محاكاة حية لنشاط وكلاء الذكاء الاصطناعي على الخادم.</p>
+                    </div>
+                    <div
+                        class="flex items-center gap-4 text-sm font-semibold text-secondary bg-glass px-4 py-2 rounded-full border border-light">
+                        <span class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-accent-green"></div> يعمل الآن
+                        </span>
+                        <span class="flex items-center gap-2">
+                            <div class="w-3 h-3 rounded-full bg-text-muted"></div> متاح (غير نشط)
+                        </span>
+                    </div>
+                </div>
+
+                <div class="office-scene shadow-glass">
+                    <div class="floor-plan" id="office-floor">
+                        <!-- Agents will be injected here -->
+                        <div class="w-full text-center text-muted font-bold"><span
+                                class="material-icons-round animate-spin">refresh</span> جاري التحميل...</div>
+                    </div>
+                </div>
+            </div>
+        </main>
     </div>
-</div>
 
-<script>
-    const { Client, Databases, Query } = Appwrite;
-    const client = new Client();
-    client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
-    const databases = new Databases(client);
-    
-    const DB_ID = 'hamad_ops';
-    const COLL_AGENTS = 'agents';
+    <!-- Scripts -->
+    <script>
+        const { Client, Databases, Query } = Appwrite;
+        const client = new Client();
+        client.setEndpoint('https://fra.cloud.appwrite.io/v1').setProject('69a172c60032723762dc');
+        const databases = new Databases(client);
 
-    async function updateOffice() {
-        try {
-            const res = await databases.listDocuments(DB_ID, COLL_AGENTS, [Query.limit(10)]);
-            renderOffice(res.documents);
-        } catch (error) {
-            console.error(error);
+        const DB_ID = 'hamad_ops';
+        const COLL_AGENTS = 'agents';
+
+        async function updateOffice() {
+            try {
+                const res = await databases.listDocuments(DB_ID, COLL_AGENTS, [Query.limit(10)]);
+                renderOffice(res.documents);
+            } catch (error) {
+                console.error('Failed to update office state:', error);
+            }
         }
-    }
 
-    function renderOffice(agents) {
-        const floor = document.getElementById('office-floor');
-        
-        // Sort: H2 (Left), Hamad (Center), H3 (Right)
-        // Or just map them. Let's try to find Hamad and put him in middle.
-        
-        const hamad = agents.find(a => a.name === 'Hamad');
-        const others = agents.filter(a => a.name !== 'Hamad');
-        
-        // simple layout array
-        const layout = [others[0], hamad, others[1]].filter(Boolean); // H2, Hamad, H3
+        function renderOffice(agents) {
+            const floor = document.getElementById('office-floor');
 
-        floor.innerHTML = layout.map(agent => {
-            const isWorking = agent.status.toLowerCase() === 'online' || agent.status.toLowerCase() === 'working';
-            const stateClass = isWorking ? 'working' : 'idle';
-            const initials = agent.name.substring(0, 2).toUpperCase();
-            
-            return `
+            const hamad = agents.find(a => a.name === 'Hamad');
+            const others = agents.filter(a => a.name !== 'Hamad');
+
+            // Simple layout: Devin (Left), Hamad (Center), Pixel/Scribe (Right)
+            // Taking first 3 for simplicity to fit the desk visualization cleanly
+            const layout = [others[0], hamad, others[1]].filter(Boolean);
+
+            floor.innerHTML = layout.map(agent => {
+                const isWorking = agent.status.toLowerCase() === 'online' || agent.status.toLowerCase() === 'working';
+                const stateClass = isWorking ? 'working' : 'idle';
+                const initials = agent.name.substring(0, 2).toUpperCase();
+                const iconClass = agent.icon ? `fa-${agent.icon}` : 'fa-robot';
+
+                return `
                 <div class="workstation agent-${agent.name} ${stateClass}">
                     <div class="agent-info">
                         <span class="agent-name">${agent.name}</span>
-                        <span class="agent-task">${isWorking ? (agent.currentTask || 'Working...') : 'Away'}</span>
+                        <span class="agent-task">${isWorking ? (agent.currentTask || 'مهمة قيد التنفيذ...') : 'بعيد عن المكتب'}</span>
                     </div>
 
                     <div class="monitor">
                         <div class="screen"></div>
-                        <!-- Code lines effect could go here -->
                     </div>
                     <div class="monitor-stand"></div>
-                    
-                    <div class="desk-area">
-                        <!-- Items on desk could go here -->
-                    </div>
+                    <div class="desk-area"></div>
 
                     <div class="avatar-container">
                         <div class="avatar">
-                            ${agent.name === 'Hamad' ? '<i class="fas fa-bolt"></i>' : initials}
+                            ${agent.name === 'Hamad' ? '<i class="fas fa-bolt"></i>' : `<i class="fas ${iconClass} text-sm"></i>`}
                             <div class="status-dot"></div>
                         </div>
                     </div>
                 </div>
             `;
-        }).join('');
-    }
+            }).join('');
+        }
 
-    // Clock
-    setInterval(() => {
-        document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US');
-    }, 1000);
+        // Clock
+        setInterval(() => {
+            document.getElementById('clock').innerText = new Date().toLocaleTimeString('en-US');
+        }, 1000);
 
-    // Loop
-    updateOffice();
-    setInterval(updateOffice, 3000); // Live updates
+        updateOffice();
+        setInterval(updateOffice, 4000); // Live updates
 
-</script>
+    </script>
 
 </body>
+
 </html>

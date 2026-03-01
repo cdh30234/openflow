@@ -1,367 +1,186 @@
-<html lang="ar" dir="rtl"><head></head><body class="bg-background-light dark:bg-background-dark text-text-main-light dark:text-text-main-dark transition-colors duration-300">```html
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+    <meta charset="utf-8"/>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+    <title data-i18n="dashboard_title">لوحة تحكم OpenFlow</title>
+    
+    <!-- Design System & Fonts -->
+    <link rel="stylesheet" href="index.css">
+    <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
+    <script src="translations.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+</head>
+<body>
 
+<div class="app-container">
+    
+    <!-- Sidebar Navigation -->
+    <aside class="sidebar">
+        <div class="sidebar-header">
+            <a href="index.html" class="brand">
+                <div class="brand-icon">
+                    <span class="material-icons-round">bolt</span>
+                </div>
+                <span class="brand-text">OpenFlow</span>
+            </a>
+        </div>
+        
+        <nav class="sidebar-nav">
+            <div class="nav-label" data-i18n="main_menu">القائمة الرئيسية</div>
+            <a href="index.html" class="nav-item active">
+                <span class="material-icons-round nav-icon">grid_view</span>
+                <span data-i18n="overview">الرئيسية</span>
+            </a>
+            <a href="content.html" class="nav-item">
+                <span class="material-icons-round nav-icon">campaign</span>
+                <span data-i18n="content_pipeline">دورة المحتوى</span>
+            </a>
+            <a href="calendar.html" class="nav-item">
+                <span class="material-icons-round nav-icon">calendar_today</span>
+                <span data-i18n="calendar">التقويم</span>
+            </a>
+            <a href="memory.html" class="nav-item">
+                <span class="material-icons-round nav-icon">folder_open</span>
+                <span data-i18n="memory_bank">بنك الذاكرة</span>
+            </a>
+            
+            <div class="nav-label mt-4" data-i18n="team_office">الفريق والمكتب</div>
+            <a href="team.html" class="nav-item">
+                <span class="material-icons-round nav-icon">people</span>
+                <span data-i18n="team">الفريق</span>
+            </a>
+            <a href="office.html" class="nav-item">
+                <span class="material-icons-round nav-icon">apartment</span>
+                <span data-i18n="digital_office">المكتب الرقمي</span>
+            </a>
+        </nav>
+        
+        <div class="sidebar-footer">
+            <div class="user-widget">
+                <img src="https://lh3.googleusercontent.com/aida-public/AB6AXuClJbufReK6q7IYBEZs_M2xG3rdyvnAvZFqMHC5q0VV5H7gEkUtSzc0W_XjdxwGyUyA6VCIpFj7DQAIG4K3D0tynbWdi36V4s7kmUL3ZP1IIamtXqhliFx_eWJtbtGoQE0XJJGVJ7bb2OEzqdlkWb1OM5U3eJI22vsKlXy4KT6E-PvAjC_2R1av5rYL1zalxvU63UH0QNfOXjR1bPT25VYyRW4lj3q5S9ei7ubtlxRonQhINQb5zG7UUsjslH7GPyoJ8_VBLw1UYCQ" alt="User Profile" class="user-avatar">
+                <div class="user-info">
+                    <span class="user-name">حمد العتيبي</span>
+                    <span class="user-role">المدير التنفيذي</span>
+                </div>
+            </div>
+            
+            <div class="mt-4 p-4 rounded-xl" style="background: linear-gradient(135deg, rgba(59, 130, 246, 0.1), rgba(139, 92, 246, 0.1)); border: 1px solid var(--border-subtle);">
+                <div class="flex items-center gap-2 mb-2 text-primary font-bold">
+                    <span class="material-icons-round text-lg">workspace_premium</span>
+                    <span data-i18n="become_pro_access">ترقية للنسخة الاحترافية</span>
+                </div>
+                <p class="text-xs text-muted mb-3" data-i18n="try_more_features">افتح جميع الميزات المتقدمة لإدارة فريق الذكاء الاصطناعي</p>
+                <button class="btn btn-primary w-full py-2 text-sm">ترقية الآن</button>
+            </div>
+        </div>
+    </aside>
 
+    <!-- Main Content -->
+    <main class="main-wrapper">
+        <!-- Top Navigation Bar -->
+        <header class="topbar">
+            <div class="search-container">
+                <span class="material-icons-round search-icon">search</span>
+                <input type="text" class="search-input" placeholder="ابحث عن المهام أو الوكلاء..." data-i18n-placeholder="search_tasks">
+            </div>
+            
+            <div class="topbar-actions">
+                <div class="lang-switcher">
+                    <button id="lang-switcher-en" class="lang-btn" onclick="setLanguage('en')">EN</button>
+                    <button id="lang-switcher-ar" class="lang-btn active" onclick="setLanguage('ar')">عربي</button>
+                </div>
+                <button class="action-btn">
+                    <span class="material-icons-round">notifications</span>
+                    <span class="badge">3</span>
+                </button>
+                <button class="btn btn-primary">
+                    <span class="material-icons-round text-sm">add</span>
+                    <span data-i18n="add_task">مهمة جديدة</span>
+                </button>
+            </div>
+        </header>
 
-<meta charset="utf-8"/>
-<meta content="width=device-width, initial-scale=1.0" name="viewport"/>
-<title data-i18n="dashboard_title">OpenFlow Dashboard</title>
-<script src="translations.js"></script>
-<link href="https://fonts.googleapis.com" rel="preconnect"/>
-<link crossorigin="" href="https://fonts.gstatic.com" rel="preconnect"/>
-<link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&amp;display=swap" rel="stylesheet"/>
-<link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet"/>
-<script src="https://cdn.tailwindcss.com?plugins=forms,typography"></script>
-<script>
-      tailwind.config = {
-        darkMode: "class",
-        theme: {
-          extend: {
-            colors: {
-              primary: "#2563EB", // Royal Blue from reference (Pro button)
-              "background-light": "#F3F4F6", // Light grey bg
-              "background-dark": "#0F172A", // Slate 900
-              "surface-light": "#FFFFFF",
-              "surface-dark": "#1E293B", // Slate 800
-              "text-main-light": "#1F2937",
-              "text-main-dark": "#F8FAFC",
-              "text-secondary-light": "#6B7280",
-              "text-secondary-dark": "#94A3B8",
-            },
-            fontFamily: {
-              display: ["'Plus Jakarta Sans'", "sans-serif"],
-            },
-            borderRadius: {
-              DEFAULT: "12px",
-            },
-            boxShadow: {
-                'soft': '0 4px 20px 0 rgba(0, 0, 0, 0.05)',
-            }
-          },
-        },
-      };
-    </script>
-<style>::-webkit-scrollbar {
-            width: 6px;
-            height: 6px;
-        }
-        ::-webkit-scrollbar-track {
-            background: transparent;
-        }
-        ::-webkit-scrollbar-thumb {
-            background: #cbd5e1;
-            border-radius: 10px;
-        }
-        .dark ::-webkit-scrollbar-thumb {
-            background: #475569;
-        }
-        body {
-            font-family: 'Plus Jakarta Sans', sans-serif;
-        }
-    </style>
+        <!-- Dynamic Content Area -->
+        <div class="page-content">
+            <div class="page-header">
+                <div>
+                    <h1 class="page-title" data-i18n="q3_product_launch">إطلاق منتجات الربع الثالث</h1>
+                    <p class="page-subtitle" data-i18n="manage_release_campaign">إدارة مهام حملات الإطلاق القادمة ومتابعة سير العمل.</p>
+                </div>
+                
+                <div class="flex items-center gap-4">
+                    <div class="avatar-group">
+                        <img class="user-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCylggicGDTjyjyoAUnSE8qEqdLNLyED0WzgvHiFLvZhmOwFwY6da7xRQaIhUvHjXpjM6rQtWPkDBhxL59TGAcLnW1Kfg9y7yKNMPeUoPWlLv53qYZZtmxrzYbRBDZqBBzPxKdSi8_zFmIHENswXgDjzTGWT-d5E3wd07FNIZPVmw-xi1wL_wsH8HOdxgQcz8cF3VXDGbU3HlZ7oMNOIfY4stwIsCnkjcGWaS0KqLj8XZHfB2Tr3fmCPhqaom3sUMZ_Jkdj1TIdBs0">
+                        <img class="user-avatar" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-9sOwWQwLkonfD-mAE_d5V7jNzKUab6IcXYjukVVxQFDmLCqmr5j4gLAC8DQZthCp4CPoOzknalEqVJbqOBQ3iQgtPtvERD00swJQwHPNy6W2C-6ExGe_9p44fC42o6yIpRJG8cSDjwd_M0R4B-e7YshzpTpueMTFpeqCd8kHf34qR300mKVpKxWfcgnYpRSdqgvnv6oFWVF9GMUcYp-k10mk5xbp2MSwzfX9c9SM3COWB_nCnSwI-kmr-KJW0YXzWQMJ4WFCisg">
+                        <div class="avatar-more">+4</div>
+                    </div>
+                </div>
+            </div>
 
+            <!-- Kanban Board -->
+            <div class="kanban-board">
+                <!-- To Do Column -->
+                <div class="kanban-col" id="col-todo">
+                    <div class="kanban-col-header">
+                        <h3 class="kanban-col-title">
+                            <span class="col-indicator" style="background: var(--text-muted)"></span>
+                            <span data-i18n="todo_column">للتنفيذ</span>
+                        </h3>
+                        <span class="tag tag-blue">0</span>
+                    </div>
+                    <div class="kanban-cards flex-1 overflow-y-auto" id="todo-list">
+                        <!-- Tasks dynamically injected here -->
+                    </div>
+                </div>
 
-<div class="flex h-screen overflow-hidden">
-<aside class="w-64 bg-surface-light dark:bg-surface-dark border-r border-gray-200 dark:border-gray-700 flex flex-col hidden md:flex z-20">
-<div class="p-6 pb-2">
-<div class="flex items-center gap-3 mb-6">
-<img alt="User Profile" class="w-10 h-10 rounded-full border-2 border-white dark:border-gray-600 shadow-sm" src="https://lh3.googleusercontent.com/aida-public/AB6AXuClJbufReK6q7IYBEZs_M2xG3rdyvnAvZFqMHC5q0VV5H7gEkUtSzc0W_XjdxwGyUyA6VCIpFj7DQAIG4K3D0tynbWdi36V4s7kmUL3ZP1IIamtXqhliFx_eWJtbtGoQE0XJJGVJ7bb2OEzqdlkWb1OM5U3eJI22vsKlXy4KT6E-PvAjC_2R1av5rYL1zalxvU63UH0QNfOXjR1bPT25VYyRW4lj3q5S9ei7ubtlxRonQhINQb5zG7UUsjslH7GPyoJ8_VBLw1UYCQ"/>
-<div>
-<h3 class="text-sm font-bold text-gray-900 dark:text-white">Justinus Lhaksana</h3>
-<p class="text-xs text-gray-500 dark:text-gray-400">justinusl@mail.com</p>
-</div>
-<button class="ml-auto text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-<span class="material-icons-round text-sm">unfold_more</span>
-</button>
-</div>
-<div class="relative mb-6">
-<span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
-<span class="material-icons-round text-lg">search</span>
-</span>
-<input class="w-full py-2 pl-10 pr-4 text-sm bg-gray-50 dark:bg-slate-700 border-none rounded-lg focus:ring-2 focus:ring-primary text-gray-700 dark:text-gray-200 placeholder-gray-400" data-i18n-placeholder="search_tasks" placeholder="Search tasks..." type="text"/>
-</div>
-</div>
-<nav class="flex-1 overflow-y-auto px-4 space-y-1">
-<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="index.html">
-<span class="material-icons-round text-gray-400 group-hover:text-primary">grid_view</span>
-                    <span data-i18n="overview">Home</span>
-                </a>
-<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium bg-gray-100 dark:bg-slate-700 text-gray-900 dark:text-white rounded-lg shadow-sm" href="content.html">
-<span class="material-icons-round text-gray-800 dark:text-gray-200">campaign</span>
-                    <span data-i18n="content_pipeline">Content Pipeline</span>
-                </a>
-<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="calendar.html">
-<span class="material-icons-round text-gray-400 group-hover:text-primary">calendar_today</span>
-                    <span data-i18n="calendar">Calendar</span>
-                </a>
-<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="memory.html">
-<span class="material-icons-round text-gray-400 group-hover:text-primary">folder_open</span>
-                    <span data-i18n="memory_bank">Memories</span>
-                </a>
-<div class="pt-2">
-<a class="flex items-center justify-between px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="#">
-<div class="flex items-center gap-3">
-<span class="material-icons-round text-gray-400 group-hover:text-primary">settings</span>
-                            <span data-i18n="settings">Settings</span>
-                        </div>
-<span class="material-icons-round text-lg">expand_less</span>
-</a>
-<div class="pl-11 pr-3 py-1 space-y-1">
-<a class="block py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" href="#">Connected Service</a>
-<a class="block py-1.5 text-xs font-medium text-gray-500 dark:text-gray-400 hover:text-gray-900 dark:hover:text-white" href="#">Password &amp; Security</a>
-</div>
-</div>
-<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors mt-2" href="team.html">
-<span class="material-icons-round text-gray-400 group-hover:text-primary">people</span>
-                    <span data-i18n="team">Team</span>
-                </a>
-<a class="flex items-center gap-3 px-3 py-2 text-sm font-medium text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700 rounded-lg group transition-colors" href="office.html">
-<span class="material-icons-round text-gray-400 group-hover:text-primary">apartment</span>
-                    <span data-i18n="digital_office">Digital Office</span>
-                </a>
-</nav>
-<div class="p-4 mt-auto">
-<div class="relative overflow-hidden rounded-2xl bg-gradient-to-br from-blue-500 to-blue-700 p-5 text-center text-white shadow-lg">
-<div class="absolute -top-4 -right-4 h-16 w-16 rounded-full bg-white/10 blur-xl"></div>
-<div class="absolute -bottom-4 -left-4 h-20 w-20 rounded-full bg-white/10 blur-xl"></div>
-<h4 class="relative z-10 text-lg font-bold" data-i18n="become_pro_access">Become Pro Access</h4>
-<p class="relative z-10 mt-1 text-xs text-blue-100 mb-4" data-i18n="try_more_features">Try your experience for using more features</p>
-<button class="relative z-10 w-full rounded-lg bg-white/20 hover:bg-white/30 py-2 text-sm font-semibold text-white backdrop-blur-sm transition-all flex items-center justify-center gap-2">
-<span class="material-icons-round text-sm">auto_awesome</span> <span data-i18n="upgrade_pro">Upgrade Pro</span>
-                    </button>
-</div>
-</div>
-</aside>
-<main class="flex-1 flex flex-col h-full relative">
-<header class="flex items-center justify-between px-8 py-5 bg-surface-light dark:bg-surface-dark border-b border-gray-200 dark:border-gray-700 z-10">
-<div class="flex items-center gap-4 w-1/3">
-<span class="material-icons-round text-gray-400 text-2xl">search</span>
-<input class="w-full bg-transparent border-none text-sm text-gray-700 dark:text-gray-200 focus:ring-0 placeholder-gray-400" data-i18n-placeholder="search_tasks" placeholder="Search task, assignee, or tag..." type="text"/>
-</div>
-<div class="flex items-center gap-6">
-<button class="relative text-gray-400 hover:text-gray-600 dark:hover:text-gray-200">
-<span class="material-icons-round">notifications</span>
-<span class="absolute top-0 right-0 w-2 h-2 bg-red-500 rounded-full border border-white dark:border-slate-800"></span>
-</button>
-<div class="flex items-center gap-3 border-l border-gray-200 dark:border-gray-700 pl-6">
-<div class="w-8 h-8 rounded-full bg-green-100 flex items-center justify-center text-green-600 font-bold text-xs">JI</div>
-<div class="hidden md:block">
-<h4 class="text-sm font-bold text-gray-900 dark:text-white leading-tight">Joxy Inc.</h4>
-<p class="text-xs text-gray-500 dark:text-gray-400">Brand</p>
-</div>
-<span class="material-icons-round text-gray-400">expand_more</span>
-</div>
-<div class="flex items-center gap-2">
-<button id="lang-switcher-en" class="px-3 py-1 text-sm font-medium rounded-lg transition-colors" :class="{'bg-gray-200 dark:bg-slate-700 text-gray-900 dark:text-white': currentLang === 'en', 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700': currentLang !== 'en'}">EN</button>
-<button id="lang-switcher-ar" class="px-3 py-1 text-sm font-medium rounded-lg transition-colors" :class="{'bg-gray-200 dark:bg-slate-700 text-gray-900 dark:text-white': currentLang === 'ar', 'text-gray-500 dark:text-gray-400 hover:bg-gray-50 dark:hover:bg-slate-700': currentLang !== 'ar'}">عربي</button>
-</div>
-<button class="p-2 rounded-full bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-300" onclick="document.documentElement.classList.toggle('dark')">
-<span class="material-icons-round dark:hidden">dark_mode</span>
-<span class="material-icons-round hidden dark:block">light_mode</span>
-</button>
-</div>
-</header>
-<div class="flex-1 overflow-x-auto overflow-y-hidden bg-background-light dark:bg-background-dark p-8">
-<div class="flex flex-col md:flex-row md:items-center justify-between mb-8 gap-4">
-<div>
-<h1 class="text-2xl font-bold text-gray-900 dark:text-white" data-i18n="q3_product_launch">Q3 Product Launch</h1>
-<p class="text-sm text-gray-500 dark:text-gray-400 mt-1" data-i18n="manage_release_campaign">Manage tasks for the upcoming release campaign.</p>
-</div>
-<div class="flex items-center gap-3">
-<div class="flex -space-x-2 overflow-hidden">
-<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-800" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCylggicGDTjyjyoAUnSE8qEqdLNLyED0WzgvHiFLvZhmOwFwY6da7xRQaIhUvHjXpjM6rQtWPkDBhxL59TGAcLnW1Kfg9y7yKNMPeUoPWlLv53qYZZtmxrzYbRBDZqBBzPxKdSi8_zFmIHENswXgDjzTGWT-d5E3wd07FNIZPVmw-xi1wL_wsH8HOdxgQcz8cF3VXDGbU3HlZ7oMNOIfY4stwIsCnkjcGWaS0KqLj8XZHfB2Tr3fmCPhqaom3sUMZ_Jkdj1TIdBs0"/>
-<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-800" src="https://lh3.googleusercontent.com/aida-public/AB6AXuB-9sOwWQwLkonfD-mAE_d5V7jNzKUab6IcXYjukVVxQFDmLCqmr5j4gLAC8DQZthCp4CPoOzknalEqVJbqOBQ3iQgtPtvERD00swJQwHPNy6W2C-6ExGe_9p44fC42o6yIpRJG8cSDjwd_M0R4B-e7YshzpTpueMTFpeqCd8kHf34qR300mKVpKxWfcgnYpRSdqgvnv6oFWVF9GMUcYp-k10mk5xbp2MSwzfX9c9SM3COWB_nCnSwI-kmr-KJW0YXzWQMJ4WFCisg"/>
-<img alt="" class="inline-block h-8 w-8 rounded-full ring-2 ring-white dark:ring-slate-800" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAhyk71CPDXf6FFok52eyivc6svvbrb6DUD1CYpBV7vk5g3eol-9HqXVvd8d_TZMAaCL9mbkRDT9WJacJVM8YAzfKk2Ax2rb0J9v6fUjc7nKvR8is-W0UwezOL5eppbsIbarKqmbtIXe8Rt5Z6hB7m6iAbt27zgOVHJ0T_wsmtqDMdtVaWivuLGn52h6tPy8Uvy21Uxf1vUaJnWbVRb8BNxjGGtP4Gdt1a_A7YWfu8efZUeh5BZ-hbXrH4skdvazNthIHS8amTn5C8"/>
-<div class="h-8 w-8 rounded-full bg-gray-100 dark:bg-slate-700 flex items-center justify-center text-xs text-gray-500 dark:text-gray-400 ring-2 ring-white dark:ring-slate-800">+4</div>
-</div>
-<span class="h-6 w-px bg-gray-300 dark:bg-gray-600 mx-2"></span>
-<button class="flex items-center gap-2 px-4 py-2 bg-primary hover:bg-blue-700 text-white text-sm font-medium rounded-lg shadow-md transition-colors">
-<span class="material-icons-round text-sm">add</span> <span data-i18n="add_task">Add Task</span>
-                        </button>
-</div>
-</div>
-<div class="flex h-full gap-6 pb-4">
-<div id="col-todo" class="w-80 flex-shrink-0 flex flex-col h-full">
-<div class="flex items-center justify-between mb-4 px-1">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-gray-400"></span>
-<h3 class="font-semibold text-gray-700 dark:text-gray-200" data-i18n="todo_column">To Do</h3>
-<span class="bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium">4</span>
-</div>
-<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><span class="material-icons-round">more_horiz</span></button>
-</div>
-<div class="flex-1 overflow-y-auto pr-2 space-y-3">
-<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer group">
-<div class="flex justify-between items-start mb-2">
-<span class="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">High Priority</span>
-<button class="text-gray-300 dark:text-gray-600 hover:text-gray-500 dark:hover:text-gray-400"><span class="material-icons-round text-base">edit</span></button>
-</div>
-<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug">Draft content for landing page hero section</h4>
-<div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-slate-700">
-<div class="flex items-center gap-2">
-<div class="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-[10px]"><span class="material-icons-round text-[14px]">smart_toy</span></div>
-<span class="text-xs text-gray-500 dark:text-gray-400">AI Assistant</span>
-</div>
-<div class="flex items-center gap-1 text-gray-400">
-<span class="material-icons-round text-sm">attach_file</span>
-<span class="text-xs">2</span>
-</div>
-</div>
-</div>
-<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer">
-<div class="flex justify-between items-start mb-2">
-<span class="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Design</span>
-</div>
-<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug">Competitor Analysis Report</h4>
-<div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-slate-700">
-<div class="flex items-center gap-2">
-<img alt="Me" class="w-6 h-6 rounded-full border border-white dark:border-slate-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuC605r-OVbR_YrhuKpy8-BvRdSfvJAhN36rNN1aD9QYl9T5XvywEXvouwk5mrdsnJ7InOVS5roX52-UagDcDFzHlfJMYTkDwtp9PQiaSAz4gF_NnMTva5_xH1QrzhoM4b7VYrn6S2MId7YJ_QXxBeN2vzJuX7Xvizfi90IiqZMfc0lJdcYqZ7Udyre9T298cAo55oUt0F4BgPakSrXWdS5ujPV65gE1Upz5mDf_H-BJjEYArbq_rmlGu4KwUjCGxpeP_LdvZfvSY4c"/>
-<span class="text-xs text-gray-500 dark:text-gray-400">Me</span>
-</div>
-<div class="flex items-center gap-1 text-gray-400">
-<span class="material-icons-round text-sm">chat_bubble_outline</span>
-<span class="text-xs">5</span>
-</div>
-</div>
-</div>
-<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer">
-<div class="flex justify-between items-start mb-2">
-<span class="bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Research</span>
-</div>
-<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug">User Interview Scripts</h4>
-<div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-slate-700">
-<div class="flex items-center gap-2">
-<img alt="Me" class="w-6 h-6 rounded-full border border-white dark:border-slate-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAbxZ5uNY5VbWB8FtCgYnCx5u8hw9C_ctR_0ySmAX9e_C4snDmpGmyuWSxKfoyFFIkBQxGhWY2H2l1oBFcH_P1xQb4WWWpYLNcLpPi4YBzD1Gg0edeoM2oW4lH6lI5VrtBE4xkoRkF-gNUQ167Mox-kkfqHes0dvTvV0d0CsOEjz6lDY1RuCT66P6tkQTacmry6gBUzLWs0F4TSH2WYwC6Zsmg3igseu9ZZVxTfx9YyhZojqHMX0Q7RYqdiiFp0BRjxw4fCQrAbgB8"/>
-<span class="text-xs text-gray-500 dark:text-gray-400">Sarah</span>
-</div>
-</div>
-</div>
-</div>
-<button class="mt-3 flex items-center justify-center gap-2 w-full py-2 border-2 border-dashed border-gray-200 dark:border-gray-700 rounded-xl text-gray-400 hover:text-primary hover:border-primary hover:bg-blue-50 dark:hover:bg-slate-800 transition-colors">
-<span class="material-icons-round text-sm">add</span>
-<span class="text-sm font-medium">New Item</span>
-</button>
-</div>
-<div id="col-inprogress" class="w-80 flex-shrink-0 flex flex-col h-full">
-<div class="flex items-center justify-between mb-4 px-1">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-blue-500"></span>
-<h3 class="font-semibold text-gray-700 dark:text-gray-200" data-i18n="inprogress_column">In Progress</h3>
-<span class="bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium">2</span>
-</div>
-<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><span class="material-icons-round">more_horiz</span></button>
-</div>
-<div class="flex-1 overflow-y-auto pr-2 space-y-3">
-<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer">
-<div class="flex justify-between items-start mb-2">
-<span class="bg-purple-100 dark:bg-purple-900/30 text-purple-600 dark:text-purple-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Development</span>
-</div>
-<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-2 leading-snug">Integrate Stripe Payment Gateway</h4>
-<div class="w-full bg-gray-100 dark:bg-slate-700 rounded-full h-1.5 mb-3">
-<div class="bg-blue-500 h-1.5 rounded-full" style="width: 65%"></div>
-</div>
-<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-slate-700">
-<div class="flex items-center gap-2">
-<img alt="Me" class="w-6 h-6 rounded-full border border-white dark:border-slate-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuDqd6r682RN_hO9NJOM71GeAeM75tu5szZES6Df3zejARbaEGcWbAML5uVpMC2E54q1oq-cnA8Fak_jKlp8-0i5Wzcfgoewiew_9-zTNANQkpEH_Xd6erI-kVNL-l19iM5Xq_GhugG069_IF37tcVnrEHn3k853Dqn50iKxZHzcoo7LXopWuId5nQLYhJbHjA5jtaQVfjNMHl-HdwGpTiwVG9BKi77SLmH7QifVMVTJN_5yUHOH5V9YgrJ8oCnC9ZSGRgAROEpx-JE"/>
-<span class="text-xs text-gray-500 dark:text-gray-400">Me</span>
-</div>
-<div class="text-xs text-blue-500 font-medium">65%</div>
-</div>
-</div>
-<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer">
-<div class="flex justify-between items-start mb-2">
-<span class="bg-pink-100 dark:bg-pink-900/30 text-pink-600 dark:text-pink-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide">Marketing</span>
-</div>
-<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug">Instagram Ad Creatives</h4>
-<div class="rounded-lg overflow-hidden h-24 w-full mb-3 relative">
-<img alt="Abstract Pattern" class="object-cover w-full h-full" src="https://lh3.googleusercontent.com/aida-public/AB6AXuAH4nh-ak-YwL4Ce6sw98E7S9Q2Lqi_ULhU4qkmPrU3lNtMZrY0hrgQyazALXtTJ--57MB1XKLjobNfWFQ-YtrUbGiZWwLL8qkuW-ndFIWOeyP9oucATB9Fhwhs_68quisA6pP8yyRHgXg7eoJSbmT72EgHi_DCCWI6k0C0NQwxQAH7eW0KC7YYs96TI3-7cBrzicIfWOuG5mSgCXs8AaytVz2bDGB8Kkwe92y5UbpB6xZ7dpKQ9JWHjaGsyO4Gu6lPsppovleMuUI"/>
-</div>
-<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-slate-700">
-<div class="flex items-center gap-2">
-<div class="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-[10px]"><span class="material-icons-round text-[14px]">smart_toy</span></div>
-<span class="text-xs text-gray-500 dark:text-gray-400">AI Assistant</span>
-</div>
-<div class="text-xs text-gray-400">Due Tomorrow</div>
-</div>
-</div>
-</div>
-</div>
-<div id="col-review" class="w-80 flex-shrink-0 flex flex-col h-full">
-<div class="flex items-center justify-between mb-4 px-1">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-yellow-400"></span>
-<h3 class="font-semibold text-gray-700 dark:text-gray-200" data-i18n="review_column">Review</h3>
-<span class="bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium">3</span>
-</div>
-<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><span class="material-icons-round">more_horiz</span></button>
-</div>
-<div class="flex-1 overflow-y-auto pr-2 space-y-3">
-<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border-l-4 border-yellow-400 hover:bg-gray-50 dark:hover:bg-slate-800/50 transition-all cursor-pointer">
-<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug">SEO Keyword Optimization</h4>
-<div class="flex items-center gap-2 mb-3">
-<span class="px-2 py-0.5 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 text-[10px] rounded">#seo</span>
-<span class="px-2 py-0.5 bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 text-[10px] rounded">#marketing</span>
-</div>
-<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-slate-700">
-<div class="flex items-center gap-2">
-<img alt="Reviewer" class="w-6 h-6 rounded-full border border-white dark:border-slate-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCo_pQac7Bfa2lyM_7fX6q47ZP5YYAq0EXk0z4qJDmejSoh8UA2Q-EZFXdnMg4Zzf4gbUrDkuhCT4S5qm3RQiSH-e-PdNxmjYYqU0L2RjAnHp_D2ZCrbVcAqYDpaB5GfBnmNrsUdgx2Q4r-T9TFFDZuqiIpSxNUqy-wiKLoqzPKn494BPuEW5hYQvoho6tYxpANMvMeWQscTKhpM5H3ECnD4ycvNmgvQRlOn1nPhe88beGix0f_sIBf1yA3xiTktwn4u8NONu-vhLg"/>
-<span class="text-xs text-gray-500 dark:text-gray-400">David</span>
-</div>
-<div class="px-2 py-1 bg-yellow-50 dark:bg-yellow-900/20 text-yellow-600 dark:text-yellow-400 text-[10px] rounded font-medium">Needs Approval</div>
-</div>
-</div>
-<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer">
-<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug">Finalize Terms of Service Update</h4>
-<div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-slate-700">
-<div class="flex items-center gap-2">
-<div class="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-[10px]"><span class="material-icons-round text-[14px]">smart_toy</span></div>
-<span class="text-xs text-gray-500 dark:text-gray-400">AI Assistant</span>
-</div>
-<div class="flex items-center gap-1 text-gray-400">
-<span class="material-icons-round text-sm">visibility</span>
-</div>
-</div>
-</div>
-</div>
-</div>
-<div id="col-done" class="w-80 flex-shrink-0 flex flex-col h-full">
-<div class="flex items-center justify-between mb-4 px-1">
-<div class="flex items-center gap-2">
-<span class="w-2 h-2 rounded-full bg-green-500"></span>
-<h3 class="font-semibold text-gray-700 dark:text-gray-200" data-i18n="done_column">Done</h3>
-<span class="bg-gray-200 dark:bg-slate-700 text-gray-600 dark:text-gray-300 text-xs px-2 py-0.5 rounded-full font-medium">12</span>
-</div>
-<button class="text-gray-400 hover:text-gray-600 dark:hover:text-gray-300"><span class="material-icons-round">more_horiz</span></button>
-</div>
-<div class="flex-1 overflow-y-auto pr-2 space-y-3">
-<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 opacity-70 hover:opacity-100 transition-opacity">
-<div class="flex items-center gap-2 mb-2 text-green-600 dark:text-green-400 text-xs font-medium">
-<span class="material-icons-round text-sm">check_circle</span> Completed Today
-                                </div>
-<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug line-through text-gray-400 dark:text-gray-500">Setup Project Repository</h4>
-<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-slate-700">
-<div class="flex items-center gap-2">
-<img alt="Me" class="w-6 h-6 rounded-full border border-white dark:border-slate-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuD_EGa8Dr7-zhYspTB9XWLrh9-4dvlEG_SfAHtsk-6x0aKh8H7XOiHA9iI1YO9BSno9yTq4K7H_OVT3J3_ZCpAHZ6X3_mBGkw-Qkv4aF_5_Jmj762yUFUZN1COhXi9tgcElB33TcR7PYAQJWyHjV_WxZLLiGN1GH4ygXPBGqjRe1VsFFovsxIF9KW0-HJ8NItJFBoS74hMd_2lr9AdXVOdjTx7Q7DwNQsc4eQMPK6n9JRDuvwCzkrNZzpsQ2cKShBByLjLSGArHHS8"/>
-<span class="text-xs text-gray-500 dark:text-gray-400">Me</span>
-</div>
-</div>
-</div>
-<div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 opacity-70 hover:opacity-100 transition-opacity">
-<h4 class="text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug line-through text-gray-400 dark:text-gray-500">Client Kickoff Meeting</h4>
-<div class="flex items-center justify-between mt-2 pt-2 border-t border-gray-100 dark:border-slate-700">
-<div class="flex items-center gap-2">
-<img alt="Client" class="w-6 h-6 rounded-full border border-white dark:border-slate-600" src="https://lh3.googleusercontent.com/aida-public/AB6AXuCvadZPArBRmAcqWEctXKYrWq2GJSkrP1fD_Pzvh8zUHTfEhTKOJ75rkvCgD1CVGGhCh4FdzsGHg8vZhUJez7_5iFi-wGp1SA7HHzs-trFyuouKidp02odnWUa2cjR8bKTydLU2Nvwu2UrKPx0vFShxIHja6NAqqRMJEXRCeje7jQXJhRPsZrVkNYa-2IqYpyL_3rmmd59POSMGNeNrpfS-uOEcltJjOrYf7XHZot_4cSEtVZAU_rnI1_v0JpmjODoPorO87RbA5C8"/>
-<span class="text-xs text-gray-500 dark:text-gray-400">Alex</span>
-</div>
-<div class="text-xs text-gray-400">Aug 20</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</div>
-</main>
-</div>
-<script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
+                <!-- In Progress Column -->
+                <div class="kanban-col" id="col-inprogress">
+                    <div class="kanban-col-header">
+                        <h3 class="kanban-col-title">
+                            <span class="col-indicator" style="background: var(--primary)"></span>
+                            <span data-i18n="inprogress_column">قيد العمل</span>
+                        </h3>
+                        <span class="tag tag-blue">0</span>
+                    </div>
+                    <div class="kanban-cards flex-1 overflow-y-auto" id="inprogress-list">
+                        <!-- Tasks dynamically injected here -->
+                    </div>
+                </div>
+
+                <!-- Review Column -->
+                <div class="kanban-col" id="col-review">
+                    <div class="kanban-col-header">
+                        <h3 class="kanban-col-title">
+                            <span class="col-indicator" style="background: var(--accent-orange)"></span>
+                            <span data-i18n="review_column">للمراجعة</span>
+                        </h3>
+                        <span class="tag tag-blue">0</span>
+                    </div>
+                    <div class="kanban-cards flex-1 overflow-y-auto" id="review-list">
+                        <!-- Tasks dynamically injected here -->
+                    </div>
+                </div>
+
+                <!-- Done Column -->
+                <div class="kanban-col" id="col-done">
+                    <div class="kanban-col-header">
+                        <h3 class="kanban-col-title">
+                            <span class="col-indicator" style="background: var(--accent-green)"></span>
+                            <span data-i18n="done_column">منجزة</span>
+                        </h3>
+                        <span class="tag tag-blue">0</span>
+                    </div>
+                    <div class="kanban-cards flex-1 overflow-y-auto" id="done-list">
+                        <!-- Tasks dynamically injected here -->
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</div>
+
+<!-- Scripts -->
 <script>
     const { Client, Databases, Query } = Appwrite;
     const client = new Client();
@@ -370,104 +189,81 @@
     
     const DB_ID = 'hamad_ops';
     const COLL_TASKS = 'tasks';
-    const COLL_AGENTS = 'agents';
 
-    // Refactored to use IDs for column containers directly
     function getColumnListContainer(columnId) {
-        const columnDiv = document.getElementById(columnId);
-        if (columnDiv) {
-            // The scrollable list container is the first child div after the header
-            return columnDiv.querySelector('.flex-1.overflow-y-auto');
-        }
-        return null;
+        return document.getElementById(columnId + '-list');
     }
 
     async function updateDashboard() {
         try {
-            const [tasksRes, agentsRes] = await Promise.all([
-                databases.listDocuments(DB_ID, COLL_TASKS, [Query.limit(100)]),
-                databases.listDocuments(DB_ID, COLL_AGENTS, [Query.limit(10)])
-            ]);
-            
+            const tasksRes = await databases.listDocuments(DB_ID, COLL_TASKS, [Query.limit(100)]);
             renderTasks(tasksRes.documents);
-        } catch (error) { console.error(error); }
+        } catch (error) { 
+            console.error('Appwrite connection error:', error); 
+        }
     }
 
     function renderTasks(tasks) {
-        const todoCol = getColumnListContainer('col-todo');
-        const inprogressCol = getColumnListContainer('col-inprogress');
-        const reviewCol = getColumnListContainer('col-review'); // New review column
-        const doneCol = getColumnListContainer('col-done');
+        const todoCol = getColumnListContainer('todo');
+        const inprogressCol = getColumnListContainer('inprogress');
+        const reviewCol = getColumnListContainer('review');
+        const doneCol = getColumnListContainer('done');
 
-        if (todoCol) {
-            todoCol.innerHTML = tasks.filter(t => t.status === 'todo').map(t => createCard(t)).join('');
-        }
-        if (inprogressCol) {
-            inprogressCol.innerHTML = tasks.filter(t => t.status === 'doing').map(t => createCard(t)).join('');
-        }
-        if (reviewCol) { // Handle review column
-            reviewCol.innerHTML = tasks.filter(t => t.status === 'review').map(t => createCard(t)).join('');
-        }
-        if (doneCol) {
-            doneCol.innerHTML = tasks.filter(t => t.status === 'done').map(t => createCard(t, true)).join('');
-        }
+        if (todoCol) todoCol.innerHTML = tasks.filter(t => t.status === 'todo').map(t => createCard(t)).join('');
+        if (inprogressCol) inprogressCol.innerHTML = tasks.filter(t => t.status === 'doing').map(t => createCard(t)).join('');
+        if (reviewCol) reviewCol.innerHTML = tasks.filter(t => t.status === 'review').map(t => createCard(t)).join('');
+        if (doneCol) doneCol.innerHTML = tasks.filter(t => t.status === 'done').map(t => createCard(t, true)).join('');
         
-        // Update Counts based on IDs
         updateCount('col-todo', tasks.filter(t => t.status === 'todo').length);
         updateCount('col-inprogress', tasks.filter(t => t.status === 'doing').length);
-        updateCount('col-review', tasks.filter(t => t.status === 'review').length); // Update review count
+        updateCount('col-review', tasks.filter(t => t.status === 'review').length);
         updateCount('col-done', tasks.filter(t => t.status === 'done').length);
     }
 
     function updateCount(columnId, count) {
         const columnDiv = document.getElementById(columnId);
         if (columnDiv) {
-            // Find the span that holds the count, it's a sibling of the h3 inside the header div
-            const countSpan = columnDiv.querySelector('h3').nextElementSibling;
-            if(countSpan) countSpan.innerText = count;
+            const tag = columnDiv.querySelector('.tag');
+            if(tag) tag.innerText = count;
         }
     }
 
     function createCard(task, isDone = false) {
-        let priorityBadge = '';
-        let priorityTextKey = ''; // Use translation key
+        let tagClass = 'tag-blue';
+        let priorityLabel = 'عادي';
+        
         if (task.priority === 'high') {
-            priorityTextKey = 'high';
-            priorityBadge = `<div class="flex justify-between items-start mb-2"><span class="bg-orange-100 dark:bg-orange-900/30 text-orange-600 dark:text-orange-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide" data-i18n="high">High Priority</span></div>`;
-        } else if (task.priority === 'normal') { // Assuming 'medium' becomes 'normal'
-            priorityTextKey = 'normal';
-            priorityBadge = `<div class="flex justify-between items-start mb-2"><span class="bg-blue-100 dark:bg-blue-900/30 text-blue-600 dark:text-blue-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide" data-i18n="normal">Normal</span></div>`;
-        } else if (task.priority === 'low') { // Adding low priority for completeness
-            priorityTextKey = 'low';
-            priorityBadge = `<div class="flex justify-between items-start mb-2"><span class="bg-gray-100 dark:bg-slate-700 text-gray-500 dark:text-gray-400 text-[10px] font-bold px-2 py-1 rounded uppercase tracking-wide" data-i18n="low">Low Priority</span></div>`;
+            tagClass = 'tag-orange';
+            priorityLabel = 'عالي الأهمية';
+        } else if (task.priority === 'low') {
+            tagClass = 'tag-purple';
+            priorityLabel = 'منخفض';
         }
 
-        const titleClass = isDone ? "text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug line-through text-gray-400 dark:text-gray-500" : "text-sm font-semibold text-gray-800 dark:text-gray-100 mb-3 leading-snug";
+        const titleStyle = isDone ? "text-decoration: line-through; opacity: 0.6;" : "";
         
-        // Dynamic Initials Avatar color
-        const colors = ['bg-blue-500', 'bg-green-500', 'bg-purple-500', 'bg-pink-500', 'bg-orange-500'];
-        const color = colors[task.assignee.length % colors.length];
-
         return `
-        <div class="bg-surface-light dark:bg-surface-dark p-4 rounded-xl shadow-soft dark:shadow-none border border-transparent dark:border-slate-700 hover:border-blue-200 dark:hover:border-blue-900 transition-all cursor-pointer group mb-3">
-            ${priorityBadge}
-            ${isDone ? '<div class="flex items-center gap-2 mb-2 text-green-600 dark:text-green-400 text-xs font-medium" data-i18n="completed"><span class="material-icons-round text-sm">check_circle</span> Completed</div>' : ''}
-            <h4 class="${titleClass}">${task.title}</h4>
-            <div class="flex items-center justify-between mt-4 pt-3 border-t border-gray-100 dark:border-slate-700">
+        <div class="task-card animate-fade-in">
+            <div class="flex justify-between items-start mb-2">
+                <span class="tag ${tagClass}">${priorityLabel}</span>
+            </div>
+            ${isDone ? '<div class="flex items-center gap-1 mb-2 text-accent-green text-xs font-bold"><span class="material-icons-round text-sm">check_circle</span> مكتمل</div>' : ''}
+            <h4 class="task-title" style="${titleStyle}">${task.title || 'بدون عنوان'}</h4>
+            <div class="flex items-center justify-between mt-4 pt-3 border-t" style="border-color: var(--border-subtle)">
                 <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full ${color} flex items-center justify-center text-white text-[10px] font-bold">${task.assignee.charAt(0)}</div>
-                    <span class="text-xs text-gray-500 dark:text-gray-400">${task.assignee}</span>
+                    <div class="w-6 h-6 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold" style="width:24px;height:24px;">${task.assignee ? task.assignee.charAt(0) : '?'}</div>
+                    <span class="text-xs text-muted">${task.assignee || 'غير محدد'}</span>
                 </div>
-                <div class="flex items-center gap-1 text-gray-400">
-                    <span class="text-xs">#${task.taskId}</span>
-                </div>
+                <div class="text-xs text-muted">#${task.taskId || '---'}</div>
             </div>
         </div>
         `;
     }
 
-    // Init
+    // Init Appwrite Data Loop
     updateDashboard();
     setInterval(updateDashboard, 5000);
 </script>
-</body></html>
+
+</body>
+</html>
