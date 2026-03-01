@@ -6,13 +6,11 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title data-i18n="dashboard_title">لوحة تحكم OpenFlow</title>
 
-    <!-- Design System & Fonts -->
     <link rel="stylesheet" href="index.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons+Round" rel="stylesheet" />
     <script src="translations.js"></script>
     <script src="https://cdn.jsdelivr.net/npm/appwrite@14.0.1"></script>
     <style>
-        /* Extra Dashboard Elements */
         .agents-tracker {
             display: flex;
             gap: 15px;
@@ -30,6 +28,18 @@
             align-items: center;
             gap: 12px;
             min-width: max-content;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .agent-pill:hover {
+            border-color: var(--primary);
+            transform: translateY(-2px);
+        }
+
+        .agent-pill.selected {
+            border-color: var(--primary);
+            background: rgba(59, 130, 246, 0.1);
         }
 
         .agent-status-indicator {
@@ -41,6 +51,7 @@
         .agent-working {
             background: var(--accent-green);
             box-shadow: 0 0 8px rgba(16, 185, 129, 0.5);
+            animation: pulse 2s infinite;
         }
 
         .agent-idle {
@@ -63,7 +74,6 @@
             transition: width 0.3s ease;
         }
 
-        /* Modal specific */
         .modal-overlay {
             position: fixed;
             top: 0;
@@ -88,13 +98,13 @@
             border-radius: var(--radius-xl);
             padding: 30px;
             width: 100%;
-            max-width: 500px;
+            max-width: 550px;
             max-height: 90vh;
             overflow-y: auto;
         }
 
         .form-group {
-            margin-bottom: 20px;
+            margin-bottom: 18px;
         }
 
         .form-group label {
@@ -112,6 +122,7 @@
             border: 1px solid var(--border-subtle);
             color: var(--text-light);
             font-family: inherit;
+            box-sizing: border-box;
         }
 
         .form-control:focus {
@@ -120,8 +131,132 @@
         }
 
         textarea.form-control {
-            min-height: 100px;
+            min-height: 90px;
             resize: vertical;
+        }
+
+        .dispatch-section {
+            background: linear-gradient(135deg, rgba(16, 185, 129, 0.08), rgba(59, 130, 246, 0.08));
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-lg);
+            padding: 16px;
+            margin-top: 10px;
+        }
+
+        .dispatch-header {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+            margin-bottom: 12px;
+            color: var(--accent-green);
+            font-weight: bold;
+            font-size: 0.95rem;
+        }
+
+        .dispatch-agents-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+            gap: 8px;
+        }
+
+        .dispatch-agent-btn {
+            background: var(--bg-deep);
+            border: 1px solid var(--border-subtle);
+            border-radius: var(--radius-md);
+            padding: 10px 8px;
+            text-align: center;
+            cursor: pointer;
+            transition: all 0.2s;
+            color: var(--text-light);
+            font-size: 0.85rem;
+        }
+
+        .dispatch-agent-btn:hover {
+            border-color: var(--primary);
+        }
+
+        .dispatch-agent-btn.selected {
+            border-color: var(--accent-green);
+            background: rgba(16, 185, 129, 0.1);
+            color: var(--accent-green);
+        }
+
+        .dispatch-agent-btn .agent-icon {
+            display: block;
+            font-size: 1.5rem;
+            margin-bottom: 4px;
+        }
+
+        .btn-dispatch {
+            background: linear-gradient(135deg, var(--accent-green), #059669);
+            color: white;
+            border: none;
+            padding: 12px 20px;
+            border-radius: var(--radius-md);
+            cursor: pointer;
+            font-family: inherit;
+            font-weight: bold;
+            display: flex;
+            align-items: center;
+            gap: 6px;
+            transition: all 0.2s;
+        }
+
+        .btn-dispatch:hover {
+            transform: translateY(-1px);
+            box-shadow: 0 4px 15px rgba(16, 185, 129, 0.3);
+        }
+
+        .btn-dispatch:disabled {
+            opacity: 0.5;
+            cursor: not-allowed;
+            transform: none;
+        }
+
+        .dispatched-badge {
+            display: inline-flex;
+            align-items: center;
+            gap: 4px;
+            background: rgba(16, 185, 129, 0.15);
+            color: var(--accent-green);
+            font-size: 0.75rem;
+            padding: 3px 8px;
+            border-radius: 20px;
+            font-weight: bold;
+        }
+
+        .toast {
+            position: fixed;
+            bottom: 30px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: var(--card-bg);
+            border: 1px solid var(--accent-green);
+            color: var(--text-light);
+            padding: 14px 24px;
+            border-radius: var(--radius-lg);
+            z-index: 2000;
+            display: none;
+            align-items: center;
+            gap: 10px;
+            box-shadow: 0 10px 40px rgba(0, 0, 0, 0.4);
+        }
+
+        .toast.show {
+            display: flex;
+            animation: slideUp 0.3s ease;
+        }
+
+        @keyframes slideUp {
+            from {
+                opacity: 0;
+                transform: translateX(-50%) translateY(20px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateX(-50%) translateY(0);
+            }
         }
     </style>
 </head>
@@ -134,9 +269,7 @@
         <aside class="sidebar">
             <div class="sidebar-header">
                 <a href="index.html" class="brand">
-                    <div class="brand-icon">
-                        <span class="material-icons-round">bolt</span>
-                    </div>
+                    <div class="brand-icon"><span class="material-icons-round">bolt</span></div>
                     <span class="brand-text">OpenFlow</span>
                 </a>
             </div>
@@ -185,14 +318,12 @@
 
         <!-- Main Content -->
         <main class="main-wrapper">
-            <!-- Top Navigation Bar -->
             <header class="topbar">
                 <div class="search-container">
                     <span class="material-icons-round search-icon">search</span>
                     <input type="text" class="search-input" placeholder="ابحث عن المهام أو الوكلاء..."
                         data-i18n-placeholder="search_tasks">
                 </div>
-
                 <div class="topbar-actions">
                     <div class="lang-switcher">
                         <button id="lang-switcher-en" class="lang-btn" onclick="setLanguage('en')">EN</button>
@@ -205,62 +336,51 @@
                 </div>
             </header>
 
-            <!-- Dynamic Content Area -->
             <div class="page-content">
                 <div class="page-header">
                     <div>
-                        <h1 class="page-title">إدارة مركز العمليات</h1>
-                        <p class="page-subtitle">تتبع المهام وحالة الوكلاء في الوقت الفعلي.</p>
+                        <h1 class="page-title">مركز القيادة</h1>
+                        <p class="page-subtitle">تتبع وتوجيه الوكلاء وإدارة المهام في الوقت الفعلي</p>
                     </div>
                 </div>
 
                 <!-- Real-time Agents Tracker -->
-                <h3 class="text-sm text-muted mb-3 font-bold px-2">متابعة الوكلاء المباشرة</h3>
-                <div class="agents-tracker" id="agents-tracker">
-                    <!-- Data injected via JS -->
-                </div>
+                <h3 class="text-sm text-muted mb-3 font-bold px-2">
+                    <span class="material-icons-round text-sm" style="vertical-align: middle;">sensors</span>
+                    متابعة الوكلاء المباشرة
+                </h3>
+                <div class="agents-tracker" id="agents-tracker"></div>
 
                 <!-- Kanban Board -->
                 <div class="kanban-board">
                     <div class="kanban-col" id="col-todo">
                         <div class="kanban-col-header">
-                            <h3 class="kanban-col-title">
-                                <span class="col-indicator" style="background: var(--text-muted)"></span>
-                                <span data-i18n="todo_column">للتنفيذ</span>
-                            </h3>
+                            <h3 class="kanban-col-title"><span class="col-indicator"
+                                    style="background: var(--text-muted)"></span><span>للتنفيذ</span></h3>
                             <span class="tag tag-blue">0</span>
                         </div>
                         <div class="kanban-cards flex-1 overflow-y-auto" id="todo-list"></div>
                     </div>
-
                     <div class="kanban-col" id="col-inprogress">
                         <div class="kanban-col-header">
-                            <h3 class="kanban-col-title">
-                                <span class="col-indicator" style="background: var(--primary)"></span>
-                                <span data-i18n="inprogress_column">قيد العمل</span>
-                            </h3>
+                            <h3 class="kanban-col-title"><span class="col-indicator"
+                                    style="background: var(--primary)"></span><span>قيد العمل</span></h3>
                             <span class="tag tag-blue">0</span>
                         </div>
                         <div class="kanban-cards flex-1 overflow-y-auto" id="inprogress-list"></div>
                     </div>
-
                     <div class="kanban-col" id="col-review">
                         <div class="kanban-col-header">
-                            <h3 class="kanban-col-title">
-                                <span class="col-indicator" style="background: var(--accent-orange)"></span>
-                                <span data-i18n="review_column">للمراجعة</span>
-                            </h3>
+                            <h3 class="kanban-col-title"><span class="col-indicator"
+                                    style="background: var(--accent-orange)"></span><span>للمراجعة</span></h3>
                             <span class="tag tag-blue">0</span>
                         </div>
                         <div class="kanban-cards flex-1 overflow-y-auto" id="review-list"></div>
                     </div>
-
                     <div class="kanban-col" id="col-done">
                         <div class="kanban-col-header">
-                            <h3 class="kanban-col-title">
-                                <span class="col-indicator" style="background: var(--accent-green)"></span>
-                                <span data-i18n="done_column">منجزة</span>
-                            </h3>
+                            <h3 class="kanban-col-title"><span class="col-indicator"
+                                    style="background: var(--accent-green)"></span><span>منجزة</span></h3>
                             <span class="tag tag-blue">0</span>
                         </div>
                         <div class="kanban-cards flex-1 overflow-y-auto" id="done-list"></div>
@@ -275,13 +395,12 @@
         <div class="modal-content">
             <div class="flex justify-between items-center mb-6">
                 <h2 class="text-xl font-bold" id="modalTitle">مهمة جديدة</h2>
-                <button class="action-btn" onclick="closeTaskModal()">
-                    <span class="material-icons-round">close</span>
-                </button>
+                <button class="action-btn" onclick="closeTaskModal()"><span
+                        class="material-icons-round">close</span></button>
             </div>
 
             <form id="taskForm" onsubmit="saveTask(event)">
-                <input type="hidden" id="taskId">
+                <input type="hidden" id="taskDocId">
 
                 <div class="form-group">
                     <label>عنوان المهمة</label>
@@ -289,8 +408,9 @@
                 </div>
 
                 <div class="form-group">
-                    <label>الوصف</label>
-                    <textarea class="form-control" id="taskDescription"></textarea>
+                    <label>الوصف والتعليمات</label>
+                    <textarea class="form-control" id="taskDescription"
+                        placeholder="اكتب تفاصيل المهمة والتعليمات للوكيل..."></textarea>
                 </div>
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
@@ -316,12 +436,30 @@
 
                 <div class="grid grid-cols-2 gap-4 mb-4">
                     <div class="form-group mb-0">
-                        <label>الوكيل المعين</label>
-                        <input type="text" class="form-control" id="taskAssignee" placeholder="مثال: Agent One">
+                        <label>المسند إلى</label>
+                        <input type="text" class="form-control" id="taskAssignee">
                     </div>
                     <div class="form-group mb-0">
                         <label>نسبة الإنجاز (%)</label>
                         <input type="number" class="form-control" id="taskProgress" min="0" max="100" value="0">
+                    </div>
+                </div>
+
+                <!-- Agent Dispatch Section -->
+                <div class="dispatch-section">
+                    <div class="dispatch-header">
+                        <span class="material-icons-round">send</span>
+                        إرسال المهمة لوكيل OpenClaw
+                    </div>
+                    <div class="dispatch-agents-grid" id="dispatchAgentsGrid">
+                        <!-- Populated by JS -->
+                    </div>
+                    <input type="hidden" id="selectedAgentId">
+                    <div class="flex justify-end mt-3">
+                        <button type="button" class="btn-dispatch" id="dispatchBtn" onclick="dispatchTask()" disabled>
+                            <span class="material-icons-round text-sm">rocket_launch</span>
+                            <span>إرسال للوكيل</span>
+                        </button>
                     </div>
                 </div>
 
@@ -330,11 +468,17 @@
                         style="display:none;" onclick="deleteTask()">حذف المهمة</button>
                     <div class="flex gap-2 mr-auto">
                         <button type="button" class="btn btn-secondary" onclick="closeTaskModal()">إلغاء</button>
-                        <button type="submit" class="btn btn-primary" id="saveTaskBtn">حفظ المهة</button>
+                        <button type="submit" class="btn btn-primary" id="saveTaskBtn">حفظ المهمة</button>
                     </div>
                 </div>
             </form>
         </div>
+    </div>
+
+    <!-- Toast Notification -->
+    <div class="toast" id="toast">
+        <span class="material-icons-round" style="color: var(--accent-green)">check_circle</span>
+        <span id="toastMessage">تم إرسال المهمة</span>
     </div>
 
     <!-- Scripts -->
@@ -347,60 +491,65 @@
         const DB_ID = 'hamad_ops';
         const COLL_TASKS = 'tasks';
         const COLL_AGENTS = 'agents';
+        const BRIDGE_URL = 'http://157.230.23.117:3030';
 
         let currentTasks = [];
+        let allAgents = [];
 
+        // ====== Toast ======
+        function showToast(message) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toastMessage').innerText = message;
+            toast.classList.add('show');
+            setTimeout(() => toast.classList.remove('show'), 3500);
+        }
+
+        // ====== Data Fetching ======
         async function updateDashboard() {
             try {
                 const [tasksRes, agentsRes] = await Promise.all([
                     databases.listDocuments(DB_ID, COLL_TASKS, [Query.limit(100)]),
                     databases.listDocuments(DB_ID, COLL_AGENTS, [Query.limit(50)])
                 ]);
-
                 currentTasks = tasksRes.documents;
+                allAgents = agentsRes.documents;
                 renderTasks(currentTasks);
-                renderAgentsTracker(agentsRes.documents, currentTasks);
+                renderAgentsTracker(allAgents, currentTasks);
             } catch (error) {
-                console.error('Appwrite connection error:', error);
+                console.error('Appwrite error:', error);
             }
         }
 
+        // ====== Agents Tracker ======
         function renderAgentsTracker(agents, tasks) {
             const tracker = document.getElementById('agents-tracker');
             if (!tracker) return;
-
             let html = '';
             agents.forEach(agent => {
-                const isWorking = agent.status === 'active';
+                const isWorking = agent.status === 'active' || agent.status === 'online';
                 const indicatorClass = isWorking ? 'agent-working' : 'agent-idle';
-
-                // Find what they are working on
                 const activeTasks = tasks.filter(t => t.assignee === agent.name && t.status === 'doing');
                 let currentTaskName = "في وضع الاستعداد";
                 let progress = 0;
-
                 if (activeTasks.length > 0) {
                     currentTaskName = activeTasks[0].title;
                     progress = activeTasks[0].progress || 0;
                 } else if (agent.currentTask) {
                     currentTaskName = agent.currentTask;
                 }
-
                 html += `
-                <div class="agent-pill">
-                    <div class="w-8 h-8 rounded-full bg-gradient-to-tr from-purple-500 to-indigo-500 flex items-center justify-center text-white text-xs font-bold">
+                <div class="agent-pill" onclick="quickDispatchTo('${agent.$id}')">
+                    <div style="width:32px;height:32px;border-radius:50%;background:linear-gradient(135deg, #8B5CF6, #3B82F6);display:flex;align-items:center;justify-content:center;color:white;font-size:0.8rem;font-weight:bold;">
                         ${agent.name.charAt(0)}
                     </div>
                     <div>
                         <div class="flex items-center gap-2 mb-1">
-                            <span class="font-bold text-sm text-text-light">${agent.name}</span>
+                            <span class="font-bold text-sm" style="color:var(--text-light)">${agent.name}</span>
                             <span class="agent-status-indicator ${indicatorClass}"></span>
                         </div>
-                        <div class="text-xs text-muted max-w-[150px] truncate" title="${currentTaskName}">${currentTaskName}</div>
+                        <div class="text-xs text-muted" style="max-width:150px;overflow:hidden;text-overflow:ellipsis;white-space:nowrap;" title="${currentTaskName}">${currentTaskName}</div>
                         ${isWorking && activeTasks.length > 0 ? `
-                            <div class="progress-bar-container">
-                                <div class="progress-bar" style="width: ${progress}%"></div>
-                            </div>
+                            <div class="progress-bar-container"><div class="progress-bar" style="width: ${progress}%"></div></div>
                         ` : ''}
                     </div>
                 </div>
@@ -409,17 +558,18 @@
             tracker.innerHTML = html;
         }
 
+        function quickDispatchTo(agentId) {
+            openTaskModal();
+            setTimeout(() => selectDispatchAgent(agentId), 100);
+        }
+
+        // ====== Task Rendering ======
         function renderTasks(tasks) {
-            const todoCol = document.getElementById('todo-list');
-            const inprogressCol = document.getElementById('inprogress-list');
-            const reviewCol = document.getElementById('review-list');
-            const doneCol = document.getElementById('done-list');
-
-            if (todoCol) todoCol.innerHTML = tasks.filter(t => t.status === 'todo').map(t => createCard(t)).join('');
-            if (inprogressCol) inprogressCol.innerHTML = tasks.filter(t => t.status === 'doing').map(t => createCard(t)).join('');
-            if (reviewCol) reviewCol.innerHTML = tasks.filter(t => t.status === 'review').map(t => createCard(t)).join('');
-            if (doneCol) doneCol.innerHTML = tasks.filter(t => t.status === 'done').map(t => createCard(t, true)).join('');
-
+            const cols = { todo: 'todo-list', doing: 'inprogress-list', review: 'review-list', done: 'done-list' };
+            Object.entries(cols).forEach(([status, elId]) => {
+                const el = document.getElementById(elId);
+                if (el) el.innerHTML = tasks.filter(t => t.status === status).map(t => createCard(t, status === 'done')).join('');
+            });
             updateCount('col-todo', tasks.filter(t => t.status === 'todo').length);
             updateCount('col-inprogress', tasks.filter(t => t.status === 'doing').length);
             updateCount('col-review', tasks.filter(t => t.status === 'review').length);
@@ -427,89 +577,90 @@
         }
 
         function updateCount(columnId, count) {
-            const columnDiv = document.getElementById(columnId);
-            if (columnDiv) {
-                const tag = columnDiv.querySelector('.tag');
-                if (tag) tag.innerText = count;
-            }
+            const col = document.getElementById(columnId);
+            if (col) { const t = col.querySelector('.tag'); if (t) t.innerText = count; }
         }
 
         function createCard(task, isDone = false) {
-            let tagClass = 'tag-blue';
-            let priorityLabel = 'عادي';
-
-            if (task.priority === 'high') {
-                tagClass = 'tag-orange';
-                priorityLabel = 'عالي الأهمية';
-            } else if (task.priority === 'low') {
-                tagClass = 'tag-purple';
-                priorityLabel = 'منخفض';
-            }
-
+            let tagClass = 'tag-blue', priorityLabel = 'عادي';
+            if (task.priority === 'high') { tagClass = 'tag-orange'; priorityLabel = 'عالي'; }
+            else if (task.priority === 'low') { tagClass = 'tag-purple'; priorityLabel = 'منخفض'; }
             const titleStyle = isDone ? "text-decoration: line-through; opacity: 0.6;" : "";
             const progress = task.progress || 0;
-
-            // Escape quotes so we can pass as JSON
-            const safeTaskData = encodeURIComponent(JSON.stringify({
-                $id: task.$id,
-                title: task.title,
-                description: task.description || '',
-                status: task.status,
-                priority: task.priority,
-                assignee: task.assignee || '',
-                progress: progress,
-                taskId: task.taskId || ''
+            const safeData = encodeURIComponent(JSON.stringify({
+                $id: task.$id, title: task.title, description: task.description || '',
+                status: task.status, priority: task.priority, assignee: task.assignee || '',
+                progress: progress, taskId: task.taskId || '', dispatchedTo: task.dispatchedTo || ''
             }));
 
             return `
-        <div class="task-card animate-fade-in cursor-pointer hover:border-primary transition-colors" onclick="openTaskModal('${safeTaskData}')">
+        <div class="task-card animate-fade-in" style="cursor:pointer;" onclick="openTaskModal('${safeData}')">
             <div class="flex justify-between items-start mb-2">
                 <span class="tag ${tagClass}">${priorityLabel}</span>
+                ${task.dispatchedTo ? `<span class="dispatched-badge"><span class="material-icons-round" style="font-size:12px;">smart_toy</span> ${task.dispatchedTo}</span>` : ''}
             </div>
             ${isDone ? '<div class="flex items-center gap-1 mb-2 text-accent-green text-xs font-bold"><span class="material-icons-round text-sm">check_circle</span> مكتمل</div>' : ''}
             <h4 class="task-title" style="${titleStyle}">${task.title || 'بدون عنوان'}</h4>
-            
             ${!isDone && task.status === 'doing' ? `
-            <div class="progress-bar-container mt-3">
-                <div class="progress-bar" style="width: ${progress}%"></div>
-            </div>
-            <div class="text-right text-[10px] text-muted mt-1">%${progress}</div>
+                <div class="progress-bar-container mt-3"><div class="progress-bar" style="width: ${progress}%"></div></div>
+                <div style="text-align:left;font-size:10px;color:var(--text-muted);margin-top:4px;">%${progress}</div>
             ` : ''}
-
-            <div class="flex items-center justify-between mt-4 pt-3 border-t" style="border-color: var(--border-subtle)">
+            <div class="flex items-center justify-between mt-4 pt-3" style="border-top: 1px solid var(--border-subtle)">
                 <div class="flex items-center gap-2">
-                    <div class="w-6 h-6 rounded-full bg-gradient-to-tr ${task.assignee ? 'from-purple-500 to-indigo-500' : 'from-gray-600 to-gray-500'} flex items-center justify-center text-white text-xs font-bold" style="width:24px;height:24px;">${task.assignee ? task.assignee.charAt(0) : '?'}</div>
+                    <div style="width:24px;height:24px;border-radius:50%;background:linear-gradient(135deg, #8B5CF6, #6366F1);display:flex;align-items:center;justify-content:center;color:white;font-size:0.7rem;font-weight:bold;">${task.assignee ? task.assignee.charAt(0) : '?'}</div>
                     <span class="text-xs text-muted">${task.assignee || 'غير محدد'}</span>
                 </div>
-                <div class="text-[10px] text-muted text-left">#${task.taskId || '---'}</div>
+                <div style="font-size:10px;color:var(--text-muted);">#${task.taskId || '---'}</div>
             </div>
-        </div>
-        `;
+        </div>`;
         }
 
-        // Modal Operations
+        // ====== Modal Operations ======
         const modal = document.getElementById('taskModal');
+
+        function populateDispatchGrid() {
+            const grid = document.getElementById('dispatchAgentsGrid');
+            grid.innerHTML = allAgents.map(a => `
+            <div class="dispatch-agent-btn" id="agent-btn-${a.$id}" onclick="selectDispatchAgent('${a.$id}')">
+                <span class="agent-icon material-icons-round">${a.icon || 'person'}</span>
+                ${a.name}
+            </div>
+        `).join('');
+        }
+
+        function selectDispatchAgent(agentId) {
+            document.querySelectorAll('.dispatch-agent-btn').forEach(b => b.classList.remove('selected'));
+            const btn = document.getElementById('agent-btn-' + agentId);
+            if (btn) btn.classList.add('selected');
+            document.getElementById('selectedAgentId').value = agentId;
+            document.getElementById('dispatchBtn').disabled = false;
+        }
 
         function openTaskModal(taskDataEncoded = null) {
             modal.classList.add('active');
+            populateDispatchGrid();
+            document.getElementById('selectedAgentId').value = '';
+            document.getElementById('dispatchBtn').disabled = true;
 
             if (taskDataEncoded) {
                 const task = JSON.parse(decodeURIComponent(taskDataEncoded));
                 document.getElementById('modalTitle').innerText = 'تعديل المهمة';
-                document.getElementById('taskId').value = task.$id;
+                document.getElementById('taskDocId').value = task.$id;
                 document.getElementById('taskTitle').value = task.title;
                 document.getElementById('taskDescription').value = task.description;
                 document.getElementById('taskStatus').value = task.status;
                 document.getElementById('taskPriority').value = task.priority;
                 document.getElementById('taskAssignee').value = task.assignee;
                 document.getElementById('taskProgress').value = task.progress;
-
                 document.getElementById('deleteTaskBtn').style.display = 'block';
-                document.getElementById('saveTaskBtn').innerText = 'تحديث التغييرات';
+                document.getElementById('saveTaskBtn').innerText = 'تحديث';
+                if (task.dispatchedTo) {
+                    selectDispatchAgent(task.dispatchedTo);
+                }
             } else {
                 document.getElementById('modalTitle').innerText = 'مهمة جديدة';
                 document.getElementById('taskForm').reset();
-                document.getElementById('taskId').value = '';
+                document.getElementById('taskDocId').value = '';
                 document.getElementById('deleteTaskBtn').style.display = 'none';
                 document.getElementById('saveTaskBtn').innerText = 'حفظ المهمة';
             }
@@ -520,73 +671,114 @@
             document.getElementById('taskForm').reset();
         }
 
-        async function saveTask(e) {
-            e.preventDefault();
-
-            const id = document.getElementById('taskId').value;
-            const data = {
+        function getFormData() {
+            return {
                 title: document.getElementById('taskTitle').value,
                 description: document.getElementById('taskDescription').value,
                 status: document.getElementById('taskStatus').value,
                 priority: document.getElementById('taskPriority').value,
                 assignee: document.getElementById('taskAssignee').value,
-                progress: parseInt(document.getElementById('taskProgress').value),
-                taskId: id ? undefined : `T-${Math.floor(Math.random() * 10000)}` // Keep old ID if exists
+                progress: parseInt(document.getElementById('taskProgress').value) || 0,
             };
+        }
 
+        async function saveTask(e) {
+            e.preventDefault();
+            const id = document.getElementById('taskDocId').value;
+            const data = getFormData();
             const btn = document.getElementById('saveTaskBtn');
             const oldText = btn.innerText;
-            btn.innerText = 'جاري الحفظ...';
-            btn.disabled = true;
+            btn.innerText = 'جاري الحفظ...'; btn.disabled = true;
 
             try {
                 if (id) {
-                    // Remove undefined fields for update
-                    const updateData = { ...data };
-                    delete updateData.taskId;
-                    await databases.updateDocument(DB_ID, COLL_TASKS, id, updateData);
+                    await databases.updateDocument(DB_ID, COLL_TASKS, id, data);
+                    showToast('تم تحديث المهمة بنجاح');
                 } else {
+                    data.taskId = `T-${Math.floor(Math.random() * 10000)}`;
                     await databases.createDocument(DB_ID, COLL_TASKS, ID.unique(), data);
+                    showToast('تم إنشاء المهمة بنجاح');
                 }
                 closeTaskModal();
-                updateDashboard(); // refresh
+                updateDashboard();
             } catch (error) {
-                console.error('Error saving task:', error);
+                console.error('Save error:', error);
                 alert('حدث خطأ أثناء حفظ المهمة');
-            } finally {
-                btn.innerText = oldText;
-                btn.disabled = false;
-            }
+            } finally { btn.innerText = oldText; btn.disabled = false; }
         }
 
         async function deleteTask() {
-            const id = document.getElementById('taskId').value;
-            if (!id) return;
+            const id = document.getElementById('taskDocId').value;
+            if (!id || !confirm("هل أنت متأكد من حذف هذه المهمة نهائياً؟")) return;
+            const btn = document.getElementById('deleteTaskBtn');
+            btn.innerText = 'جاري الحذف...'; btn.disabled = true;
+            try {
+                await databases.deleteDocument(DB_ID, COLL_TASKS, id);
+                closeTaskModal(); updateDashboard();
+                showToast('تم حذف المهمة');
+            } catch (error) { console.error("Delete error:", error); alert("خطأ في الحذف"); }
+            finally { btn.innerText = 'حذف المهمة'; btn.disabled = false; }
+        }
 
-            if (confirm("هل أنت متأكد من حذف هذه المهمة نهائياً؟")) {
-                const btn = document.getElementById('deleteTaskBtn');
-                btn.innerText = 'جاري الحذف...';
-                btn.disabled = true;
-                try {
-                    await databases.deleteDocument(DB_ID, COLL_TASKS, id);
-                    closeTaskModal();
-                    updateDashboard();
-                } catch (error) {
-                    console.error("Error deleting:", error);
-                    alert("حدث خطأ في عملية الحذف");
-                } finally {
-                    btn.innerText = 'حذف المهمة';
-                    btn.disabled = false;
+        // ====== Dispatch to OpenClaw Agent ======
+        async function dispatchTask() {
+            const agentId = document.getElementById('selectedAgentId').value;
+            if (!agentId) return;
+
+            const taskData = getFormData();
+            const docId = document.getElementById('taskDocId').value;
+            taskData.taskId = docId ? (currentTasks.find(t => t.$id === docId)?.taskId || `T-${Math.floor(Math.random() * 10000)}`) : `T-${Math.floor(Math.random() * 10000)}`;
+
+            const dispBtn = document.getElementById('dispatchBtn');
+            dispBtn.innerHTML = '<span class="material-icons-round text-sm" style="animation:spin 1s linear infinite">sync</span> جاري الإرسال...';
+            dispBtn.disabled = true;
+
+            try {
+                // 1. Save/update the task in Appwrite first
+                let finalDocId = docId;
+                const appwriteData = { ...taskData, dispatchedTo: agentId, dispatchedAt: new Date().toISOString(), status: 'doing' };
+
+                if (docId) {
+                    delete appwriteData.taskId;
+                    await databases.updateDocument(DB_ID, COLL_TASKS, docId, appwriteData);
+                } else {
+                    const created = await databases.createDocument(DB_ID, COLL_TASKS, ID.unique(), appwriteData);
+                    finalDocId = created.$id;
                 }
+
+                // 2. Update agent status in Appwrite
+                await databases.updateDocument(DB_ID, COLL_AGENTS, agentId, {
+                    currentTask: taskData.title,
+                    status: 'active'
+                });
+
+                // 3. Dispatch to Bridge API (writes to inbox/ on server)
+                try {
+                    await fetch(`${BRIDGE_URL}/dispatch`, {
+                        method: 'POST',
+                        headers: { 'Content-Type': 'application/json' },
+                        body: JSON.stringify({ agentId, task: taskData })
+                    });
+                } catch (bridgeErr) {
+                    console.warn('Bridge API offline, task saved to Appwrite only:', bridgeErr);
+                }
+
+                closeTaskModal();
+                updateDashboard();
+                showToast(`✅ تم إرسال المهمة إلى ${allAgents.find(a => a.$id === agentId)?.name || agentId}`);
+            } catch (error) {
+                console.error('Dispatch error:', error);
+                alert('حدث خطأ أثناء إرسال المهمة');
+            } finally {
+                dispBtn.innerHTML = '<span class="material-icons-round text-sm">rocket_launch</span> إرسال للوكيل';
+                dispBtn.disabled = false;
             }
         }
 
         // Close modal on outside click
-        modal.addEventListener('click', (e) => {
-            if (e.target === modal) closeTaskModal();
-        });
+        modal.addEventListener('click', (e) => { if (e.target === modal) closeTaskModal(); });
 
-        // Init Appwrite Data Loop
+        // Init
         updateDashboard();
         setInterval(updateDashboard, 5000);
     </script>
