@@ -96,7 +96,7 @@ function setLanguage(lang) {
 }
 
 document.addEventListener("DOMContentLoaded", () => {
-    const savedLang = localStorage.getItem("lang") || "en";
+    const savedLang = localStorage.getItem("lang") || "ar";
     setLanguage(savedLang);
 
     // Language switcher event listener (assuming you'll add buttons in index.html)
